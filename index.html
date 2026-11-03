@@ -846,6 +846,16 @@
 <script src="corner-deco.js"></script>
 <script>
 (function () {
+  // 预加载全部卡面，避免翻开时图还没到
+  var IMG_CACHE = {};
+  function preloadAll(cards) {
+    for (var i = 0; i < cards.length; i++) {
+      var im = new Image();
+      im.src = 'art/' + cards[i].id + '.webp';
+      IMG_CACHE[cards[i].id] = im;
+    }
+  }
+
   var CARDS = window.__CARDS__ || [];
   var POSITIONS = ['过去', '现在', '未来'];
   var state = { stage: 'idle', drawn: [null, null, null], flipped: [false, false, false], history: [] };
@@ -870,7 +880,7 @@
     return '<div class="card-face front">' +
       '<div class="card-inner">' +
         '<span class="card-num">' + c.num + '</span>' +
-        '<div class="card-art"><img src="art/' + c.id + '.webp" alt="" loading="lazy" decoding="async"></div>' +
+        '<div class="card-art"><img src="art/' + c.id + '.webp" alt="" decoding="async" onerror="this.dataset.r=(+this.dataset.r||0)+1;if(this.dataset.r<3){this.src=this.src.split(\'?\')[0]+\'?r=\'+Date.now();}else{this.style.display=\'none\';}"></div>' +
         '<span class="card-name">' + c.name + '</span>' +
         '<span class="card-pos">' + (rev ? '逆位' : '正位') + '</span>' +
       '</div>' +
@@ -1338,6 +1348,7 @@
     if (s) state.history = JSON.parse(s) || [];
   } catch (e) {}
 
+  preloadAll(CARDS);
   render();
 })();
 </script>
