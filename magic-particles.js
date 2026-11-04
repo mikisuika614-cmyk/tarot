@@ -28,8 +28,8 @@
       var x = btnLeft + 220 * (0.10 + Math.random() * 0.80);
       var y = btnTop + btnH * (0.30 + Math.random() * 0.60);
       // 目标：一路飘到画布上部
-      var targetY = 8 + Math.random() * (btnTop * 0.85);
-      var frames = 130 + Math.random() * 120;
+      var targetY = btnTop * (0.35 + Math.random() * 0.42);   // 只飘到按钮上方一小段，不冲到牌位
+      var frames = 100 + Math.random() * 80;
       return {
         x: x,
         y: y,
