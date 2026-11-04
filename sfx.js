@@ -59,14 +59,14 @@
   function shuffling() {
     var c = ac();
     if (!c) return;
-    var dur = 1.1;
+    var dur = 1.25;
     var bufSize = Math.floor(c.sampleRate * dur);
     var buf = c.createBuffer(1, bufSize, c.sampleRate);
     var data = buf.getChannelData(0);
     for (var i = 0; i < bufSize; i++) {
       // 衰减的白噪声
       var t = i / bufSize;
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 1.6) * 0.16;
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 1.5) * 0.42;
     }
     var src = c.createBufferSource();
     src.buffer = buf;
@@ -78,7 +78,7 @@
     bp.Q.value = 0.7;
 
     var g = c.createGain();
-    g.gain.value = 0.45;
+    g.gain.value = 0.95;
 
     src.connect(bp);
     bp.connect(g);
@@ -88,22 +88,22 @@
 
   // 翻牌：一声清脆的
   function flip() {
-    tone(880, 0, 0.32, 0.07, 'triangle');
-    tone(1320, 0.02, 0.22, 0.035, 'sine');
+    tone(880, 0, 0.34, 0.15, 'triangle');
+    tone(1320, 0.02, 0.24, 0.08, 'sine');
   }
 
   // 翻开三张完成：一段上行和弦
   function reveal() {
     var notes = [523.25, 659.25, 783.99, 1046.5];  // C E G C
     for (var i = 0; i < notes.length; i++) {
-      tone(notes[i], i * 0.11, 0.9 - i * 0.1, 0.055, 'triangle');
+      tone(notes[i], i * 0.11, 0.95 - i * 0.1, 0.13, 'triangle');
     }
   }
 
   // 按钮点击：短促的一声
   function tap() {
-    tone(660, 0, 0.10, 0.05, 'triangle');
-    tone(990, 0.01, 0.08, 0.028, 'sine');
+    tone(660, 0, 0.11, 0.10, 'triangle');
+    tone(990, 0.01, 0.09, 0.055, 'sine');
   }
 
   window.SFX = {
