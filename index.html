@@ -890,6 +890,65 @@
     line-height: 1.8; letter-spacing: .2px;
   }
 
+  /* 组合解读的段落 */
+  .reading-para {
+    font-size: 13.5px;
+    color: #a89cc4;
+    line-height: 1.95;
+    letter-spacing: .3px;
+    margin-bottom: 14px;
+    padding-left: 12px;
+    border-left: 2px solid rgba(201, 162, 39, .22);
+  }
+  .reading-para:last-child { margin-bottom: 0; }
+  .reading-para.landing {
+    color: #c9b8f0;
+    border-left-color: rgba(201, 162, 39, .55);
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(201,162,39,.15);
+  }
+
+  /* 建议块 */
+  .advice-block {
+    margin-top: 20px;
+    padding: 16px 16px 18px;
+    border-radius: 8px;
+    background: rgba(201, 162, 39, .05);
+    border: 1px solid rgba(201, 162, 39, .2);
+  }
+  .advice-title {
+    font-size: 12px;
+    color: #c9a227;
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+  }
+  .advice-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .advice-list li {
+    font-size: 13px;
+    color: #b6a9d0;
+    line-height: 1.9;
+    letter-spacing: .3px;
+    padding-left: 16px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+  .advice-list li:last-child { margin-bottom: 0; }
+  .advice-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 11px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(201, 162, 39, .65);
+  }
+
   /* 综合解读卡 */
   .summary-card {
     margin-top: 10px;
@@ -1143,6 +1202,7 @@
 <script src="cards.js"></script>
 <script src="insights.js"></script>
 <script src="question-analysis.js"></script>
+<script src="reading-engine.js"></script>
 <script src="corner-deco.js"></script>
 <script src="magic-particles.js"></script>
 <script src="sfx.js"></script>
@@ -1272,25 +1332,50 @@
       qr = window.__QA__.buildQuestionReading(q, state.drawn);
     }
 
-    if (advParts.length) {
+    // 用组合引擎生成解读（同一张牌在不同组合里会有不同的说法）
+    var combined = null;
+    if (window.buildCombinedReading) {
+      combined = window.buildCombinedReading(
+        state.drawn,
+        q,
+        qr ? qr.topic : '综合'
+      );
+    }
+
+    if (combined) {
       html += '<div class="summary-card" style="animation-delay:.5s">' +
         '<div class="summary-title">综合解读</div>';
-
-      // 问题一行小字（有提问才显示）
       if (qr) {
         html += '<div class="summary-q">「' + qr.question + '」· ' + qr.topic + '</div>';
       }
+      html +=
+        '<div class="reading-para">' + combined.opening + '</div>' +
+        '<div class="reading-para">' + combined.flow + '</div>' +
+        '<div class="reading-para">' + combined.tension + '</div>' +
+        '<div class="reading-para landing">' + combined.landing + '</div>';
 
-      html += '<div class="triple">' +
+      // 建议单独成块
+      if (combined.advice && combined.advice.length) {
+        html += '<div class="advice-block">' +
+          '<div class="advice-title">具 体 怎 么 做</div>' +
+          '<ul class="advice-list">';
+        for (var ai = 0; ai < combined.advice.length; ai++) {
+          html += '<li>' + combined.advice[ai] + '</li>';
+        }
+        html += '</ul></div>';
+      }
+      html += '</div>';
+    } else if (advParts.length) {
+      // 兜底：引擎不可用时退回三段拼接
+      html += '<div class="summary-card" style="animation-delay:.5s">' +
+        '<div class="summary-title">综合解读</div>' +
+        '<div class="triple">' +
           '<div class="triple-item adv"><span class="triple-label">优 势</span>' +
-            '<span class="triple-text">' + advParts.join(' ') +
-              (qr ? '　' + qr.focus : '') + '</span></div>' +
+            '<span class="triple-text">' + advParts.join(' ') + '</span></div>' +
           '<div class="triple-item risk"><span class="triple-label">隐 患</span>' +
-            '<span class="triple-text">' + riskParts.join(' ') +
-              (qr ? '　' + qr.tone : '') + '</span></div>' +
+            '<span class="triple-text">' + riskParts.join(' ') + '</span></div>' +
           '<div class="triple-item advice"><span class="triple-label">建 议</span>' +
-            '<span class="triple-text">' + adviceParts.join(' ') +
-              (qr ? '　' + qr.adviceTail : '') + '</span></div>' +
+            '<span class="triple-text">' + adviceParts.join(' ') + '</span></div>' +
         '</div>' +
       '</div>';
     }
