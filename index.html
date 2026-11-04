@@ -23,6 +23,8 @@
       radial-gradient(ellipse 52% 36% at 90% 58%, rgba(126, 74, 146, .24), transparent 70%),
       #07050e;
     z-index: -2;
+    transform: translateZ(0);
+    will-change: transform;
   }
   body::after {
     content: "";
@@ -547,6 +549,9 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none;
     user-select: none;
+    /* 独立合成层：粒子动画不会引起整页重绘 */
+    isolation: isolate;
+    will-change: transform;
   }
 
   /* 悬停：抬起来一点，光晕增强 */
@@ -590,35 +595,16 @@
   .btn:disabled:hover { transform: none; filter: none; }
 
   /* ===== 点击整体反馈 ===== */
-  .shockwave {
-    position: absolute;
-    left: 50%; top: 50%;
-    width: 24px; height: 24px;
-    margin-left: -12px; margin-top: -12px;
-    border-radius: 50%;
-    border: 2px solid rgba(240, 210, 130, .85);
-    box-shadow: 0 0 24px rgba(230, 195, 110, .55),
-                0 0 48px rgba(201, 162, 39, .28) inset;
-    pointer-events: none;
-    z-index: 1;
-    animation: shockOut 1.5s cubic-bezier(.25, .5, .2, 1) forwards;
-  }
-  @keyframes shockOut {
-    0%   { transform: scale(1); opacity: 0; border-width: 2px; }
-    12%  { opacity: .75; }
-    40%  { opacity: .42; }
-    100% { transform: scale(9); opacity: 0; border-width: 0.5px; }
-  }
 
   /* 粒子画布：铺满按钮，压在文字下面 */
   .btn .btn-particles {
     position: absolute;
-    inset: -6px;
-    width: calc(100% + 12px);
-    height: calc(100% + 12px);
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
     z-index: 4;
-    border-radius: 28px;
+    border-radius: inherit;
   }
 
   /* 顶部那道弧形反光 */
@@ -1361,14 +1347,6 @@
     var br = elBtn.getBoundingClientRect();
     var cx = br.left + br.width / 2;
     var cy = br.top + br.height / 2;
-
-    // 2) 金色冲击波（挂在按钮内部，从中心扩散，不跟页面位移）
-    var wave = document.createElement('div');
-    wave.className = 'shockwave';
-    elBtn.appendChild(wave);
-    setTimeout(function () {
-      if (wave.parentNode) wave.parentNode.removeChild(wave);
-    }, 1560);
 
     // 5) 粒子爆发（加强）
     if (particles) {
