@@ -1237,7 +1237,6 @@
 <script src="corner-deco.js?v=2"></script>
 <script src="magic-particles.js?v=2"></script>
 <script src="sfx.js?v=2"></script>
-<script src="ambient.js?v=1"></script>
 <script>
 (function () {
   // 预加载全部卡面，避免翻开时图还没到
@@ -1874,19 +1873,17 @@
   // ===== 背景氛围音开关（喇叭按钮）======
   var elSfxToggle = document.getElementById('sfxToggle');
   function syncSfxBtn() {
-    if (!elSfxToggle) return;
-    var on = window.AMBIENT ? window.AMBIENT.isOn() : (window.SFX ? window.SFX.isOn() : false);
+    if (!elSfxToggle || !window.SFX) return;
+    var on = window.SFX.isOn();
     elSfxToggle.classList.toggle('on', on);
     elSfxToggle.classList.toggle('off', !on);
   }
   if (elSfxToggle) {
     elSfxToggle.addEventListener('click', function () {
-      var cur = window.AMBIENT ? window.AMBIENT.isOn() : false;
-      var next = !cur;
-      if (window.AMBIENT) window.AMBIENT.enable(next);
-      if (window.SFX) window.SFX.enable(next);   // 音效一起开关
+      if (!window.SFX) return;
+      window.SFX.enable(!window.SFX.isOn());
       syncSfxBtn();
-      if (next && window.SFX) window.SFX.tap();
+      if (window.SFX.isOn()) window.SFX.tap();
     });
     syncSfxBtn();
   }
