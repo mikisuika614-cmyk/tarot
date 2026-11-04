@@ -1100,6 +1100,30 @@
   </div>
 </div>
 
+  <div class="btn-wrap">
+    <canvas class="btn-particles" id="btnParticles"></canvas>
+    <button class="btn" id="mainBtn">
+      <span class="btn-gloss"></span>
+      <span class="btn-spinner"></span>
+      <span class="btn-label">开始占卜</span>
+    </button>
+  </div>
+
+  <div class="question-box" id="questionBox">
+    <input class="question-input" id="questionInput" placeholder="想问的事（可以不填）" maxlength="20">
+  </div>
+
+  <div class="readings" id="readings"></div>
+
+  <div class="history-sec" id="historySec">
+    <div class="history-head">
+      <span class="history-title">占卜记录</span>
+      <button class="history-clear" id="historyClear">清空</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
+</div>
+
 <div class="modal-mask" id="modal">  <div class="modal-card">
     <button class="modal-close" id="modalClose">×</button>
     <div class="modal-pos" id="mPos"></div>
