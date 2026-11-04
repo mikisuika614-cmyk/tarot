@@ -113,55 +113,52 @@
   }
 
   // ===== 建议生成 =====
-  // 优先用每张牌的专属建议，避免所有组合都说同样的话
+  // 三张牌的建议全部按"问题类别"优先取，避免不同问题给出同一套话
   function buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName) {
     var VOICE = window.TAROT_VOICE || {};
+    var TV = (window.TOPIC_VOICE || {})[topicName] || {};
+    var hasTopic = Object.keys(TV).length > 0;
     var items = [];
     var used = {};
 
-    // 0) 优先用"这个类别下"的建议（最贴合问题）
-    var TV = (window.TOPIC_VOICE || {})[topicName] || {};
-    var nowItem = drawn[1];
-    var topicAdv = TV[nowItem.card.id];
-    if (topicAdv && topicAdv.advice) {
-      items.push(topicAdv.advice);
-      used[topicAdv.advice] = 1;
+    function push(s) {
+      if (!s || used[s]) return false;
+      used[s] = 1;
+      items.push(s);
+      return true;
     }
 
-    // 1) 再取这张牌的通用建议（如果和类别建议不同）
-    var nowV = VOICE[nowItem.card.id];
-    if (nowV && nowV.advice && !used[nowV.advice]) {
-      items.push(nowV.advice);
-      used[nowV.advice] = 1;
+    // 1) 当下这张牌：类别版 > 通用版
+    var nowId = drawn[1].card.id;
+    var a1 = (TV[nowId] && TV[nowId].advice) || (VOICE[nowId] && VOICE[nowId].advice);
+    push(a1);
+
+    // 2) 趋势这张牌：类别版 > 通用版
+    var futId = drawn[2].card.id;
+    var a2 = (TV[futId] && TV[futId].advice) || (VOICE[futId] && VOICE[futId].advice);
+    push(a2);
+
+    // 3) 根源这张牌也补一条（如果前两条重复或不足）
+    if (items.length < 3) {
+      var pastId = drawn[0].card.id;
+      var a0 = (TV[pastId] && TV[pastId].advice) || (VOICE[pastId] && VOICE[pastId].advice);
+      push(a0);
     }
 
-    // 2) 再取"趋势"牌的建议，告诉人往哪走
-    var futItem = drawn[2];
-    var futV = VOICE[futItem.card.id];
-    if (futV && futV.advice && !used[futV.advice]) {
-      items.push(futV.advice);
-      used[futV.advice] = 1;
+    // 4) 还不够，按能量给"怎么用力"
+    if (items.length < 3) {
+      var toneAdvice;
+      if (totalEnergy >= 3) toneAdvice = '现在有推力，但这股劲来得快也去得快。趁它还热，先做最重要的那件。';
+      else if (totalEnergy >= 1) toneAdvice = '先动一小步试水，别一次押上去。走两步看看反应，再决定下一步。';
+      else if (totalEnergy === 0) toneAdvice = '现在最适合做的是"整理"，不是"推进"。把手上的事收一收。';
+      else if (totalEnergy >= -2) toneAdvice = '这几天别做重大决定。等局面的重心回到中间，你的判断会准很多。';
+      else toneAdvice = '先止损。现在不是翻盘的时候，是别再掉下去的时候。';
+      push(toneAdvice);
     }
 
-    // 3) 根据整体能量补一条"怎么用力"的建议
-    var toneAdvice;
-    if (totalEnergy >= 3) {
-      toneAdvice = '现在有推力，但这股劲来得快也去得快。趁它还热，先做最重要的那件。';
-    } else if (totalEnergy >= 1) {
-      toneAdvice = '先动一小步试水，别一次押上去。走两步看看反应，再决定下一步。';
-    } else if (totalEnergy === 0) {
-      toneAdvice = '现在最适合做的是"整理"，不是"推进"。把手上的事收一收。';
-    } else if (totalEnergy >= -2) {
-      toneAdvice = '这几天别做重大决定。等局面的重心回到中间，你的判断会准很多。';
-    } else {
-      toneAdvice = '先止损。现在不是翻盘的时候，是别再掉下去的时候。';
-    }
-    if (!used[toneAdvice]) items.push(toneAdvice);
-
-    // 4) 逆位多时补一句
-    if (revCount >= 2 && items.length < 3) {
-      var revAdvice = '逆位多的时候，外部条件往往是够的。你缺的是承认自己已经做了选择。';
-      if (!used[revAdvice]) items.push(revAdvice);
+    // 5) 逆位多时补一句（仅当还有空位）
+    if (items.length < 3 && revCount >= 2) {
+      push('逆位多的时候，外部条件往往是够的。你缺的是承认自己已经做了选择。');
     }
 
     return items.slice(0, 3);
