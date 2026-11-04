@@ -147,63 +147,80 @@
   }
 
   // ===== 建议生成 =====
-  // 三张牌的建议全部按"问题类别"优先取，避免不同问题给出同一套话
+  // 三层：类别专属 > 通用 > 按"性质"兜底，每层都优先取没重复的
   function buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName, topicSub) {
     var VOICE = window.TAROT_VOICE || {};
     var ALLTV = window.TOPIC_VOICE || {};
-    // 优先用子类（比如 钱·lend），没有再退回主类
-    var TV = {};
-    if (topicSub && ALLTV[topicName + '·' + topicSub]) {
-      TV = ALLTV[topicName + '·' + topicSub];
-    } else {
-      TV = ALLTV[topicName] || {};
-    }
+    var TV = (topicSub && ALLTV[topicName + '·' + topicSub]) ? ALLTV[topicName + '·' + topicSub]
+             : (ALLTV[topicName] || {});
     var items = [];
     var used = {};
-
     function push(s) {
       if (!s || used[s]) return false;
-      used[s] = 1;
-      items.push(s);
-      return true;
+      used[s] = 1; items.push(s); return true;
     }
 
-    // 1) 当下这张牌：类别版 > 通用版
+    // 按"性质"给的兜底建议（覆盖同一主题反复抽到不同牌的情况）
+    var NATURE_ADVICE = {
+      '开启': '别等完全准备好。这种事永远没有完全准备好的时候。',
+      '动手': '先做出一个能用的版本，别在细节上耗。',
+      '内省': '先别问别人，问自己那第一反应就够。',
+      '滋养': '先照顾自己一次，你太久没这么做了。',
+      '掌控': '该你拍板的时候到了，别再把决定推给别人。',
+      '循规': '照规矩来一次不丢人，但别把它当唯一解。',
+      '取舍': '列两个选项，各写三条"我要为此承担什么"。',
+      '冲刺': '先确认方向，再加速。方向错了跑得越快越远。',
+      '忍耐': '忍可以，但要给自己一个期限。',
+      '退守': '退一步不是输，是留着力气做别的。',
+      '流转': '顺势而为，但先定一条不动的底线。',
+      '清算': '该算的账算清楚，别让它在心里烂着。',
+      '悬停': '这段时间不必有进展。等也是种行动。',
+      '终结': '结束就要结束得干净，拖着的尾巴最耗人。',
+      '调和': '别走极端，找个能持续的节奏。',
+      '纠缠': '先认出是什么在绑着你，再谈要不要挣脱。',
+      '崩塌': '如果它在塌，别救。塌完再建比一直补快。',
+      '疗愈': '这段把睡好、吃好排在所有事前面。',
+      '迷雾': '重要的事等想清楚了再说，别在情绪里定。',
+      '明朗': '趁顺的时候把该做的事做了。',
+      '唤醒': '有句话一直没说，这次说完它。',
+      '完成': '先承认这件事做完了，再看下一步。'
+    };
+
+    // 1) 当下牌：类别专属 > 通用 > 性质兜底
     var nowId = drawn[1].card.id;
-    var a1 = (TV[nowId] && TV[nowId].advice) || (VOICE[nowId] && VOICE[nowId].advice);
-    push(a1);
+    var nowNature = (TRAITS[nowId] || {}).nature || '';
+    push((TV[nowId] && TV[nowId].advice) ||
+         (VOICE[nowId] && VOICE[nowId].advice) ||
+         NATURE_ADVICE[nowNature]);
 
-    // 2) 趋势这张牌：类别版 > 通用版
+    // 2) 趋势牌：同上
     var futId = drawn[2].card.id;
-    var a2 = (TV[futId] && TV[futId].advice) || (VOICE[futId] && VOICE[futId].advice);
-    push(a2);
+    var futNature = (TRAITS[futId] || {}).nature || '';
+    push((TV[futId] && TV[futId].advice) ||
+         (VOICE[futId] && VOICE[futId].advice) ||
+         NATURE_ADVICE[futNature]);
 
-    // 3) 根源这张牌也补一条（如果前两条重复或不足）
+    // 3) 根源牌
     if (items.length < 3) {
       var pastId = drawn[0].card.id;
-      var a0 = (TV[pastId] && TV[pastId].advice) || (VOICE[pastId] && VOICE[pastId].advice);
-      push(a0);
+      var pastNature = (TRAITS[pastId] || {}).nature || '';
+      push((TV[pastId] && TV[pastId].advice) ||
+           (VOICE[pastId] && VOICE[pastId].advice) ||
+           NATURE_ADVICE[pastNature]);
     }
 
-    // 4) 还不够，按能量给"怎么用力"（措辞轮换，避免总出现同一句）
+    // 4) 还缺就按能量补
     if (items.length < 3) {
       var tonePool;
-      if (totalEnergy >= 3) {
-        tonePool = ['趁这股劲还在，挑最重要的一件先做。', '现在推得动，别浪费这段。'];
-      } else if (totalEnergy >= 1) {
-        tonePool = ['走两步看反应，别一口气全押。', '先做出来，再调整。', '不用想周全，先有个开头。'];
-      } else if (totalEnergy === 0) {
-        tonePool = ['现在适合整理，不适合推进。', '把手上的事收一收，比再开新的强。'];
-      } else if (totalEnergy >= -2) {
-        tonePool = ['这几天先别做重大决定。', '等局面回稳一点，判断会准很多。', '现在最该做的是不动，不是硬撑。'];
-      } else {
-        tonePool = ['先止损。', '现在不是翻盘的时候，是别再往下掉的时候。'];
-      }
-      // 随机取一条，避免每次一样
-      push(tonePool[Math.floor(Math.random() * tonePool.length)]);
+      if (totalEnergy >= 3) tonePool = ['趁这股劲在，挑最重要的一件先做。', '现在推得动，别浪费这段。'];
+      else if (totalEnergy >= 1) tonePool = ['走两步看反应，别一口气全押。', '先做出来，再调整。', '不用想周全，先有个开头。'];
+      else if (totalEnergy === 0) tonePool = ['现在适合整理，不适合推进。', '把手上的事收一收，比再开新的强。'];
+      else if (totalEnergy >= -2) tonePool = ['这几天先别做重大决定。', '等局面回稳一点，判断会准很多。', '现在最该做的是不动，不是硬撑。'];
+      else tonePool = ['先止损。', '现在不是翻盘的时候，是别再往下掉的时候。'];
+      push(tonePool[drawn[0].card.id % tonePool.length]);
     }
 
-    // 5) 逆位多时补一句（仅当还有空位）
+    // 5) 逆位多时补一句
     if (items.length < 3 && revCount >= 2) {
       push('逆位多的时候，外部条件往往是够的。你缺的是承认自己已经做了选择。');
     }
@@ -239,7 +256,20 @@
       else if (totalEnergy === 0) toneTail = '一进一退，现在还没定。';
       else if (totalEnergy >= -2) toneTail = '这时候不适合硬推。';
       else toneTail = '先稳住，别急着扭转。';
-      opening = nowVoice.inNow + ' ' + toneTail;
+      // 再叠一句"现在这事卡在哪一层"，让同一张牌在不同组合里不同
+      var nowRealm = (TRAITS[nowItem.card.id] || {}).realm || '';
+      var otherRealms = (TRAITS[drawn[0].card.id] || {}).realm + '/' + (TRAITS[drawn[2].card.id] || {}).realm;
+      var realmNote = '';
+      if (nowRealm && otherRealms.indexOf(nowRealm) < 0) {
+        realmNote = ' 根和趋势都在另一头，现在这个坎是中间多出来的。';
+      } else if (nowRealm === '内在') {
+        realmNote = ' 这一层是心里的事，外面看不出来。';
+      } else if (nowRealm === '关系') {
+        realmNote = ' 这一层牵扯到别人，不是一个人能定的。';
+      } else if (nowRealm === '外在') {
+        realmNote = ' 这一层是实打实的条件问题。';
+      }
+      opening = nowVoice.inNow + ' ' + toneTail + realmNote;
     } else {
       if (totalEnergy >= 3) opening = '三张牌的能量都往外推。这个局面是活的，条件基本齐了，卡你的多半不是外面。';
       else if (totalEnergy >= 1) opening = '整体是往前走的，但走得不算轻松。有推得动的部分，也有拖着你的部分。';
@@ -292,20 +322,53 @@
     if (pairHit) {
       tension = '这两张摆在一起有话说——' + pairHit.pair.text;
     } else {
-      // 没有特别组合时，看能量是否一致
-      var e0 = energyOf(drawn[0]), e2 = energyOf(drawn[2]);
-      if (e0 * e2 > 0) {
-        tension = '过去和未来是同一个方向。你现在的处境不是意外，是早就在往这边走的。';
-      } else if (e0 * e2 < 0) {
-        tension = '过去和未来是相反的方向。这意味着中间会有一个转折，而你现在正站在转折点上。';
-      } else {
-        tension = '三张牌之间没有明显的对立，是同一个方向的渐进。局势比看起来更单纯。';
+      // 用三张牌的"性质"组合出具体说法，比只看层面细得多
+      var n0 = (TRAITS[drawn[0].card.id] || {}).nature || '';
+      var n1 = (TRAITS[drawn[1].card.id] || {}).nature || '';
+      var n2 = (TRAITS[drawn[2].card.id] || {}).nature || '';
+      var g = function (n) {
+        if (['终结', '崩塌', '纠缠', '迷雾'].indexOf(n) >= 0) return 'down';
+        if (['开启', '动手', '冲刺', '明朗', '完成', '疗愈'].indexOf(n) >= 0) return 'up';
+        return 'still';
+      };
+      var gp = g(n0), gf = g(n2);
+      var key = gp + '-' + gf;
+      var POOL = {
+        'down-up': ['先破后立。倒下的那部分清完，新的才站得住。',
+                    '这组是"熬过去"的形状，现在难，但难在往好的方向走。'],
+        'up-up': ['一路往上，没有明显的坎。这时候最容易的问题是走太快没看路。',
+                  '三张同向推进，说明这件事本身顺，卡你的是要不要下决心。'],
+        'up-down': ['开头顺，后面会撞墙。别把前期的顺利当成全程都这样。',
+                    '这组形状是"起高走低"。趁现在还在高处，把该锁的先锁住。'],
+        'down-down': ['一路往下，没有反转。这时候争的不是赢，是少输。',
+                      '这个形状说明事情还在往下走，先别急着止跌。'],
+        'still-up': ['一直悬着，往下才动起来。等的那段时间不是白等。',
+                     '前面拖了很久，现在终于有推力了。'],
+        'up-still': ['先推了一阵，然后卡住。你要找的是那个卡点在哪。',
+                     '这个形状是"开了头没接上"。问题不在开头，在中间。'],
+        'down-still': ['先落了，然后停住。停住说明还没有到最底。',
+                       '已经消解过一轮，现在是缓冲期。'],
+        'still-down': ['一直没定，往下才开始动。等着看的东西，已经给出答案了。',
+                       '悬着的东西要落下来了，只是不是你选的方式。'],
+        'still-still': ['三张都不动。这种局面里，做什么都会觉得没变化。',
+                        '整体是静止的。这时候不需要行动，需要等。']
+      };
+      var pool = POOL[key] || ['三张牌连起来是一条线，不太有反转，说明局面还算稳定。'];
+      tension = pool[drawn[0].card.id % pool.length];
+
+      // 中间那张的处境单独补一句
+      if (n1 === '内省' || n1 === '退守') {
+        tension += ' 中间那张落在心里，说明外面的事不是关键，你怎么想才是。';
+      } else if (n1 === '取舍' || n1 === '调和') {
+        tension += ' 中间那张是"选"的位置，这个坎绕不开一个决定。';
+      } else if (n1 === '忍耐' || n1 === '悬停') {
+        tension += ' 中间那张是停着的，你现在动不了，也不该硬动。';
       }
-      // 再补一句：逆位占比
-      if (revCount > 1) {
-        tension += '另外逆位偏多，说明阻力主要来自内部的判断，不是外部条件。';
+
+      if (revCount >= 2) {
+        tension += ' 逆位偏多，阻力来自内部的判断。';
       } else if (revCount === 0) {
-        tension += '三张全正位，说明条件已经在那儿了，剩下的是你迈不迈这一步。';
+        tension += ' 三张全正位，条件齐了，差的是你迈不迈。';
       }
     }
 

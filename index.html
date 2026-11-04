@@ -805,6 +805,22 @@
     color: #d0808a;
     border-color: rgba(180, 100, 110, .4);
   }
+  .hist-advice {
+    margin-top: 9px;
+    padding-top: 9px;
+    border-top: 1px dashed rgba(201, 162, 39, .16);
+    font-size: 12px;
+    color: #8a7db0;
+    line-height: 1.75;
+    letter-spacing: .3px;
+  }
+  .hist-advice::before {
+    content: "建议 ";
+    color: #c9a227;
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
   .hist-empty {
     font-size: 12px;
     color: #4a4166;
@@ -1746,10 +1762,17 @@
   function save() {
     try {
       var d = new Date();
+      // 取最后那条建议存进历史，方便回顾
+      var lastAdvice = '';
+      var advEls = document.querySelectorAll('.advice-list li');
+      if (advEls.length) {
+        lastAdvice = advEls[advEls.length - 1].textContent.trim();
+      }
       state.history.unshift({
         date: d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(),
         time: Date.now(),
         q: elQInput.value,
+        advice: lastAdvice,
         cards: state.drawn.map(function (it) {
           return { name: it.card.name, num: it.card.num, rev: it.reversed };
         })
@@ -1785,6 +1808,7 @@
         '<div class="hist-date">' + h.date + '</div>' +
         (h.q ? '<div class="hist-q">「' + h.q + '」</div>' : '') +
         '<div class="hist-cards">' + cardsHtml + '</div>' +
+        (h.advice ? '<div class="hist-advice">' + h.advice + '</div>' : '') +
       '</div>';
     }
     elHistoryList.innerHTML = html;
