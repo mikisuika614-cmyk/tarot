@@ -474,12 +474,6 @@
   .corner-deco.c2 { bottom: 0; right: 0; transform: scale(-1, -1); }
   .corner-deco.c3 { bottom: 0; left: 0; transform: scaleY(-1); }
 
-  .card-num {
-    position: absolute; top: 8px; left: 10px;
-    z-index: 3;
-    font-size: 9px; color: #9c8fc0; letter-spacing: 1px;
-    font-family: Georgia, serif;
-  }
   .card-name {
     position: absolute;
     bottom: 26px; z-index: 3;
@@ -1271,7 +1265,7 @@
     var rev = item.reversed;
     return '<div class="card-face front">' +
       '<div class="card-inner">' +
-        '<span class="card-num">' + c.num + '</span>' +
+        
         '<div class="card-art"><img src="art/' + c.id + '.webp" alt="" decoding="async" onerror="this.dataset.r=(+this.dataset.r||0)+1;if(this.dataset.r<3){this.src=this.src.split(\'?\')[0]+\'?r=\'+Date.now();}else{this.style.display=\'none\';}"></div>' +
         '<span class="card-name">' + c.name + '</span>' +
         '<span class="card-pos">' + (rev ? '逆位' : '正位') + '</span>' +
