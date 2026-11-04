@@ -36,7 +36,11 @@
     18: { energy: -1, nature: '迷雾', realm: '内在', label: '看不清，也在吓自己' },
     19: { energy: 2,  nature: '明朗', realm: '外在', label: '这段时间是被祝福的' },
     20: { energy: 0,  nature: '唤醒', realm: '内在', label: '旧事在叫你回去' },
-    21: { energy: 1,  nature: '完成', realm: '外在', label: '一件完整的事做完了' }
+    21: { energy: 1,  nature: '完成', realm: '外在', label: '一件完整的事做完了' },
+    30: { energy: 2,  nature: '开启', realm: '外在', label: '有个东西正在冒芽' },
+    31: { energy: 1,  nature: '滋养', realm: '内在', label: '心里有新的感受' },
+    32: { energy: 1,  nature: '清算', realm: '内在', label: '想明白了一件事' },
+    33: { energy: 1,  nature: '动手', realm: '外在', label: '有个实在的机会' }
   };
 
   // ===== 特殊牌对：当两张同时出现时，有额外的读法 =====
