@@ -186,19 +186,54 @@
       '完成': '先承认这件事做完了，再看下一步。'
     };
 
-    // 1) 当下牌：类别专属 > 通用 > 性质兜底
+    // 逆位专用建议（和正位分开，说明"卡住时该做什么"）
+    var REV_ADVICE = {
+      '开启': '你现在迈不出去。别逼自己，先做一件很小的事，找回动的感觉。',
+      '动手': '想法一直没落地。这周先做一个最粗糙的版本，不用给任何人看。',
+      '内省': '你心里那个声音被压住了。找个没人的地方待一小时，听它说什么。',
+      '滋养': '你给出去的太多了，现在收不回来。停一停，先顾自己。',
+      '掌控': '你现在定不了这件事。不是你不行，是时机不对。',
+      '循规': '你照的那套规矩不适用了。可以试试不那么按规矩来。',
+      '取舍': '你一直没选。不选本身也在消耗你，随便先选一个小的。',
+      '冲刺': '冲的时候方向歪了。先停下来确认目标，再决定要不要继续冲。',
+      '忍耐': '你忍过头了。忍到某个点，它会变成别的情绪。',
+      '退守': '退得太久，你会不知道怎么回去。找个小的场合露面。',
+      '流转': '局面在动而你抓不住。找一件不变的事先握住。',
+      '清算': '这笔账一直记着没算。写下来，看清了才放得下。',
+      '悬停': '卡住是为了让你想明白。别急，但也别什么都不做。',
+      '终结': '该结束的一直拖着。拖着比结束更痛苦。',
+      '调和': '你现在有点偏了。往另一边调一点，还没到失衡。',
+      '纠缠': '锁其实是松的。试着走一步，看看会发生什么。',
+      '崩塌': '还没塌完。这时候重建会白费力气，先等。',
+      '疗愈': '伤还没好透。别急着装作没事，会留疤。',
+      '迷雾': '现在看不清楚是正常的。这几天做的判断都要打折。',
+      '明朗': '顺的时候过了头，可能有点飘。找个人给你泼点冷水。',
+      '唤醒': '有些事没真正收尾，它一直回来找你。这次处理完它。',
+      '完成': '你以为完了，其实还差一口气。把那口气补上。'
+    };
+
+    // 1) 当下牌：类别专属 > 通用 > 性质兜底；逆位优先用逆位建议
     var nowId = drawn[1].card.id;
     var nowNature = (TRAITS[nowId] || {}).nature || '';
-    push((TV[nowId] && TV[nowId].advice) ||
-         (VOICE[nowId] && VOICE[nowId].advice) ||
-         NATURE_ADVICE[nowNature]);
+    var nowRev = drawn[1].reversed;
+    if (nowRev && REV_ADVICE[nowNature]) {
+      push(REV_ADVICE[nowNature]);
+    } else {
+      push((TV[nowId] && TV[nowId].advice) ||
+           (VOICE[nowId] && VOICE[nowId].advice) ||
+           NATURE_ADVICE[nowNature]);
+    }
 
     // 2) 趋势牌：同上
     var futId = drawn[2].card.id;
     var futNature = (TRAITS[futId] || {}).nature || '';
-    push((TV[futId] && TV[futId].advice) ||
-         (VOICE[futId] && VOICE[futId].advice) ||
-         NATURE_ADVICE[futNature]);
+    if (drawn[2].reversed && REV_ADVICE[futNature]) {
+      push(REV_ADVICE[futNature]);
+    } else {
+      push((TV[futId] && TV[futId].advice) ||
+           (VOICE[futId] && VOICE[futId].advice) ||
+           NATURE_ADVICE[futNature]);
+    }
 
     // 3) 根源牌
     if (items.length < 3) {
@@ -304,6 +339,10 @@
         }
       } else if (v && v[FLD[j]]) {
         body = v[FLD[j]];
+        // 逆位时把这句改成"卡在这里"，语义要变
+        if (item.reversed) {
+          body = '（逆）' + body.replace('你现在', '你现在的处境是').replace('就会', '本该');
+        }
       } else {
         var trait = TRAITS[item.card.id] || { label: item.card.name };
         body = '它在做的是：' + trait.label + '。';
