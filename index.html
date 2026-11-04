@@ -988,7 +988,7 @@
     </div>
   </div>
 
-  <div class="btn-wrap"><canvas class="btn-particles" id="btnParticles"></canvas><button class="btn" id="mainBtn"><span class="btn-gloss"></span><span class="btn-spinner"></span><span class="btn-label">洗 牌</span></button></div>
+  <div class="btn-wrap"><canvas class="btn-particles" id="btnParticles"></canvas><button class="btn" id="mainBtn"><span class="btn-gloss"></span><span class="btn-spinner"></span><span class="btn-label">开始占卜</span></button></div>
 
   <div class="question-box" id="questionBox">
     <input class="question-input" id="questionInput" placeholder="想问的事（可以不填）" maxlength="20">
@@ -1182,7 +1182,7 @@
     } else if (state.stage === 'revealed') {
       setBtnText('重新洗牌');
     } else {
-      setBtnText('洗 牌');
+      setBtnText('开始占卜');
     }
     elBtn.disabled = state.stage === 'drawing';
     elQBox.style.display = (state.stage === 'idle') ? 'block' : 'none';
@@ -1563,13 +1563,15 @@
   }
 
   elBtn.addEventListener('click', function () {
+    // 直接重新抽，不先跳回「待抽」状态
     if (state.stage === 'result' || state.stage === 'revealed') {
       state.stage = 'idle';
       state.drawn = [null, null, null];
       state.flipped = [false, false, false];
-      elQInput.value = '';
+      elReadings.innerHTML = '';
       elSub.textContent = '';
-      render();
+      renderSpread();          // 只重建牌位，不渲染解读
+      draw();
       return;
     }
     draw();
