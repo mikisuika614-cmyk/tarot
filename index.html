@@ -55,7 +55,7 @@
     padding: 10px 16px 40px;
   }
 
-  .header { text-align: center; margin-bottom: 22px; }
+  .header { text-align: center; margin-bottom: 22px; position: relative; }
   .title {
     display: block;
     font-size: 26px;
@@ -696,6 +696,189 @@
   .btn.loading .btn-label { padding-left: 16px; }
   .btn.loading::before { animation: none; opacity: 0; }
 
+  /* 音效开关 */
+  .sfx-toggle {
+    position: absolute;
+    right: 20px;
+    top: 6px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,162,39,.28);
+    background: rgba(28,22,44,.6);
+    color: #8a7db0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all .22s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .sfx-toggle:hover { color: #c9a227; border-color: rgba(201,162,39,.6); }
+  .sfx-toggle .wave { opacity: .3; transition: opacity .2s; }
+  .sfx-toggle.on { color: #c9a227; border-color: rgba(201,162,39,.6); }
+  .sfx-toggle.on .wave { opacity: 1; }
+  .sfx-toggle.off .wave { opacity: 0; }
+
+  /* 分享按钮 */
+  .btn-share {
+    width: 46px;
+    height: 46px;
+    margin-left: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(201, 162, 39, .4);
+    background: rgba(28, 22, 44, .8);
+    color: #c9a227;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    transition: all .25s cubic-bezier(.34,1.4,.5,1);
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn-share.show { display: inline-flex; }
+  .btn-share:hover {
+    background: rgba(44, 34, 66, .95);
+    border-color: rgba(240, 215, 140, .75);
+    box-shadow: 0 0 16px rgba(201,162,39,.3);
+    transform: scale(1.08);
+  }
+  .btn-share:active { transform: scale(.94); }
+  .btn-share svg { display: block; }
+
+  /* 分享结果弹层 */
+  .share-mask {
+    position: fixed; inset: 0;
+    background: rgba(3, 2, 8, .97);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease;
+  }
+  .share-mask.show { opacity: 1; pointer-events: auto; }
+  .share-box {
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+    transform: translateY(12px) scale(.97);
+    transition: transform .35s cubic-bezier(.2,.9,.3,1);
+  }
+  .share-mask.show .share-box { transform: translateY(0) scale(1); }
+  .share-img {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.75);
+    display: block;
+  }
+  .share-tip {
+    font-size: 12px;
+    color: #7a6ea0;
+    margin-top: 14px;
+    letter-spacing: 1px;
+    line-height: 1.7;
+  }
+  .share-close {
+    margin-top: 16px;
+    font-size: 13px;
+    color: #c9a227;
+    background: none;
+    border: 1px solid rgba(201,162,39,.4);
+    border-radius: 18px;
+    padding: 8px 28px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    font-family: inherit;
+  }
+  .share-close:hover { background: rgba(201,162,39,.12); }
+
+  /* ===== 占卜记录 ===== */
+  .history-sec {
+    width: 100%;
+    margin-top: 30px;
+    display: none;
+  }
+  .history-sec.show { display: block; }
+  .history-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 0 2px;
+  }
+  .history-title {
+    font-size: 12px;
+    color: #8a7db0;
+    letter-spacing: 3px;
+  }
+  .history-clear {
+    font-size: 11px;
+    color: #5a5078;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    letter-spacing: 1px;
+    font-family: inherit;
+    transition: color .2s;
+  }
+  .history-clear:hover { color: #b0707a; }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .hist-item {
+    background: rgba(20, 15, 35, .72);
+    border: 1px solid rgba(201, 162, 39, .12);
+    border-radius: 8px;
+    padding: 12px 14px;
+    position: relative;
+  }
+  .hist-date {
+    font-size: 10px;
+    color: #4a4166;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .hist-q {
+    font-size: 12px;
+    color: #8a7db0;
+    margin-bottom: 8px;
+    letter-spacing: .5px;
+  }
+  .hist-cards {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .hist-card {
+    font-size: 11px;
+    color: #c9a227;
+    border: 1px solid rgba(201, 162, 39, .28);
+    border-radius: 10px;
+    padding: 2px 9px;
+    letter-spacing: .5px;
+  }
+  .hist-card.rev {
+    color: #d0808a;
+    border-color: rgba(180, 100, 110, .4);
+  }
+  .hist-empty {
+    font-size: 12px;
+    color: #4a4166;
+    text-align: center;
+    padding: 20px 0;
+    letter-spacing: 1px;
+  }
+
   .question-box { margin-top: 18px; width: 100%; }
   .question-input {
     width: 100%; height: 40px;
@@ -977,24 +1160,46 @@
     <span class="title">今日运势</span>
     <span class="subtitle" id="subtitle"></span>
     <div class="divider"></div>
+    <button class="sfx-toggle" id="sfxToggle" title="开关音效">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M11 5 6 9H3v6h3l5 4V5z"/>
+        <path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/>
+      </svg>
+    </button>
   </div>
 
   <div class="spread-wrap">
     <div class="spread" id="spread"></div>
-    <div class="shuffle-stage" id="shuffleStage">
+    <div class="share-mask" id="shareMask">
+  <div class="share-box">
+    <img class="share-img" id="shareImg" alt="">
+    <div class="share-tip">长按图片保存，或截图发给朋友</div>
+    <button class="share-close" id="shareClose">关 闭</button>
+  </div>
+</div>
+
+<div class="shuffle-stage" id="shuffleStage">
       <div class="shuffle-anchor" id="shuffleAnchor">
         <div class="shuffle-deck" id="shuffleDeck"></div>
       </div>
     </div>
   </div>
 
-  <div class="btn-wrap"><canvas class="btn-particles" id="btnParticles"></canvas><button class="btn" id="mainBtn"><span class="btn-gloss"></span><span class="btn-spinner"></span><span class="btn-label">开始占卜</span></button></div>
+  <div class="btn-wrap"><canvas class="btn-particles" id="btnParticles"></canvas><button class="btn" id="mainBtn"><span class="btn-gloss"></span><span class="btn-spinner"></span><span class="btn-label">开始占卜</span></button><button class="btn-share" id="shareBtn" title="保存这张牌面"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5"/><path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"/></svg></button></div>
 
   <div class="question-box" id="questionBox">
     <input class="question-input" id="questionInput" placeholder="想问的事（可以不填）" maxlength="20">
   </div>
 
   <div class="readings" id="readings"></div>
+
+  <div class="history-sec" id="historySec">
+    <div class="history-head">
+      <span class="history-title">占卜记录</span>
+      <button class="history-clear" id="historyClear">清空</button>
+    </div>
+    <div class="history-list" id="historyList"></div>
+  </div>
 </div>
 
 <div class="shuffle-stage" id="shuffleStage">
@@ -1022,6 +1227,8 @@
 <script src="question-analysis.js"></script>
 <script src="corner-deco.js"></script>
 <script src="magic-particles.js"></script>
+<script src="sfx.js"></script>
+<script src="share.js"></script>
 <script>
 (function () {
   // 预加载全部卡面，避免翻开时图还没到
@@ -1186,6 +1393,8 @@
     }
     elBtn.disabled = state.stage === 'drawing';
     elQBox.style.display = (state.stage === 'idle') ? 'block' : 'none';
+    if (typeof renderHistory === 'function') renderHistory();
+    if (typeof updateShareBtn === 'function') updateShareBtn();
     if (state.stage === 'drawing' || state.stage === 'revealed') {
       for (var i = 0; i < 3; i++) {
         if (state.drawn[i] && !state.flipped[i]) bindTap(i);
@@ -1376,6 +1585,7 @@
     if (!CARDS.length) { alert('牌库没加载成功'); return; }
 
     playDrawFeedback();
+    if (window.SFX) window.SFX.shuffling();
 
     state.stage = 'drawing';
     state.drawn = [null, null, null];
@@ -1489,6 +1699,7 @@
   });
 
   function flipCard(idx) {
+    if (window.SFX) window.SFX.flip();
     state.flipped[idx] = true;
     var slot = document.getElementById('slot' + idx);
     if (!slot) return;
@@ -1509,8 +1720,10 @@
     });
     if (allFlipped) {
       state.stage = 'result';
+      if (window.SFX) window.SFX.reveal();
       renderReadings();
       setBtnText('再抽一次');
+      if (typeof updateShareBtn === 'function') updateShareBtn();
       save();
     }
   }
@@ -1527,7 +1740,47 @@
         })
       });
       localStorage.setItem('tarot_history', JSON.stringify(state.history.slice(0, 50)));
+      renderHistory();
     } catch (e) {}
+  }
+
+  // ===== 占卜记录 =====
+  var elHistorySec = document.getElementById('historySec');
+  var elHistoryList = document.getElementById('historyList');
+  var elHistoryClear = document.getElementById('historyClear');
+
+  function renderHistory() {
+    if (!elHistorySec) return;
+    // 只在没抽牌的时候显示记录
+    var show = state.history.length > 0 && (state.stage === 'idle');
+    elHistorySec.classList.toggle('show', show);
+    if (!show) return;
+
+    var html = '';
+    var list = state.history.slice(0, 10);
+    for (var i = 0; i < list.length; i++) {
+      var h = list[i];
+      var cardsHtml = '';
+      for (var j = 0; j < (h.cards || []).length; j++) {
+        var cd = h.cards[j];
+        cardsHtml += '<span class="hist-card' + (cd.rev ? ' rev' : '') + '">' +
+                     cd.name + (cd.rev ? ' 逆' : '') + '</span>';
+      }
+      html += '<div class="hist-item">' +
+        '<div class="hist-date">' + h.date + '</div>' +
+        (h.q ? '<div class="hist-q">「' + h.q + '」</div>' : '') +
+        '<div class="hist-cards">' + cardsHtml + '</div>' +
+      '</div>';
+    }
+    elHistoryList.innerHTML = html;
+  }
+
+  if (elHistoryClear) {
+    elHistoryClear.addEventListener('click', function () {
+      state.history = [];
+      try { localStorage.removeItem('tarot_history'); } catch (e) {}
+      renderHistory();
+    });
   }
 
   // 启动魔幻粒子
@@ -1575,6 +1828,62 @@
       return;
     }
     draw();
+  });
+
+  // ===== 音效开关 =====
+  var elSfxToggle = document.getElementById('sfxToggle');
+  function syncSfxBtn() {
+    if (!elSfxToggle || !window.SFX) return;
+    var on = window.SFX.isOn();
+    elSfxToggle.classList.toggle('on', on);
+    elSfxToggle.classList.toggle('off', !on);
+  }
+  if (elSfxToggle) {
+    elSfxToggle.addEventListener('click', function () {
+      if (!window.SFX) return;
+      window.SFX.enable(!window.SFX.isOn());
+      syncSfxBtn();
+      if (window.SFX.isOn()) window.SFX.tap();
+    });
+    syncSfxBtn();
+  }
+
+  // ===== 分享 =====
+  var elShareBtn = document.getElementById('shareBtn');
+  var elShareMask = document.getElementById('shareMask');
+  var elShareImg = document.getElementById('shareImg');
+  var elShareClose = document.getElementById('shareClose');
+
+  function updateShareBtn() {
+    if (!elShareBtn) return;
+    var ok = state.stage === 'result' && state.drawn.every(function (d) { return !!d; });
+    elShareBtn.classList.toggle('show', ok);
+  }
+
+  if (elShareBtn) {
+    elShareBtn.addEventListener('click', async function () {
+      if (!window.makeShareImage) return;
+      if (window.SFX) window.SFX.tap();
+      // 综合解读的第一段（优势）作为摘要
+      var summary = '';
+      var blocks = document.querySelectorAll('.summary-card .triple-item.adv .triple-text');
+      if (blocks.length) summary = blocks[0].textContent.trim();
+      try {
+        var data = await window.makeShareImage(state.drawn, elQInput.value.trim(), summary);
+        elShareImg.src = data;
+        elShareMask.classList.add('show');
+      } catch (e) {
+        alert('生成图片失败：' + e.message);
+      }
+    });
+  }
+
+  function closeShare() {
+    elShareMask.classList.remove('show');
+  }
+  if (elShareClose) elShareClose.addEventListener('click', closeShare);
+  if (elShareMask) elShareMask.addEventListener('click', function (e) {
+    if (e.target === elShareMask) closeShare();
   });
 
   elQInput.addEventListener('input', function (e) {
