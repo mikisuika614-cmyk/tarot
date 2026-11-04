@@ -607,9 +607,9 @@
     position: absolute;
     left: 50%;
     bottom: -40px;
-    /* 画布比按钮宽，但不要超出屏幕：宽 360px（390 屏也能装下） */
+    /* 画布足够高，粒子在内部就淡完了，不会被上沿切出硬边 */
     width: 360px;
-    height: 300px;
+    height: 320px;
     margin-left: -180px;
     pointer-events: none;
     z-index: 0;

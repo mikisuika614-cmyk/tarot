@@ -20,27 +20,29 @@
     }
 
     function spawn() {
-      // 画布 360x300；按钮 220x50 居中偏下（按钮顶部 y≈210，底部 y≈260）
-      var btnTop = 209;
+      // 画布 360x320，按钮底边在画布底部附近
       var btnH = 50;
+      var btnBottom = H - 8;
+      var btnTop = btnBottom - btnH;
       var btnLeft = (W - 220) / 2;
-      // 出生：按钮内部，略微收窄避开圆角
+
       var x = btnLeft + 220 * (0.10 + Math.random() * 0.80);
-      var y = btnTop + btnH * (0.30 + Math.random() * 0.60);
-      // 目标：一路飘到画布上部
-      var targetY = btnTop * (0.35 + Math.random() * 0.42);   // 只飘到按钮上方一小段，不冲到牌位
-      var frames = 100 + Math.random() * 80;
+      var y = btnBottom - btnH * Math.random() * 0.75;
+
+      // 目标：只比按钮顶端再高 40~65px，离画布上沿还很远
+      var targetY = Math.max(60, btnTop - (40 + Math.random() * 25));
+      var frames = 90 + Math.random() * 70;
       return {
         x: x,
         y: y,
-        vx: (Math.random() - 0.5) * 0.26,
+        vx: (Math.random() - 0.5) * 0.22,
         vy: -((y - targetY) / frames),
-        r: 0.9 + Math.random() * 2.2,
+        r: 0.9 + Math.random() * 2.0,
         life: 0,
         maxLife: frames,
         hue: 40 + Math.random() * 14,
-        bright: 76 + Math.random() * 20,
-        star: Math.random() < 0.32
+        bright: 78 + Math.random() * 18,
+        star: Math.random() < 0.34
       };
     }
 
@@ -70,8 +72,8 @@
 
         // 淡入淡出
         var alpha;
-        if (t < 0.10) alpha = Math.pow(t / 0.10, 0.7);
-        else if (t > 0.55) alpha = Math.pow((1 - t) / 0.45, 1.6);
+        if (t < 0.08) alpha = Math.pow(t / 0.08, 0.75);
+        else if (t > 0.50) alpha = Math.pow((1 - t) / 0.50, 1.8);
         else alpha = 1;
         alpha *= 0.9;
 
