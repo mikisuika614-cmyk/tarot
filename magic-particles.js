@@ -20,26 +20,26 @@
     }
 
     function spawn() {
-      // 画布比按钮高 46px。按钮底部 = H，按钮顶部 = H - btnH
+      // 画布 248x160，按钮在画布里靠下方（大约 y=106~156）
+      var btnTop = 106;
       var btnH = 50;
-      var topEdge = Math.max(6, H - btnH);           // 按钮上沿在画布里的 y
-      var x = W * (0.06 + Math.random() * 0.88);
+      var x = W * (0.10 + Math.random() * 0.80);
       // 从按钮内部偏下出发
-      var y = topEdge + btnH * (0.35 + Math.random() * 0.55);
-      // 一路飘到按钮上方（甚至画布顶部附近）再淡出
-      var targetY = Math.max(4, topEdge * (0.05 + Math.random() * 0.55));
-      var frames = 90 + Math.random() * 80;
+      var y = btnTop + btnH * (0.40 + Math.random() * 0.50);
+      // 飘到画布上部（甚至顶端）再淡出
+      var targetY = 6 + Math.random() * (btnTop - 20);
+      var frames = 100 + Math.random() * 90;
       return {
         x: x,
         y: y,
-        vx: (Math.random() - 0.5) * 0.26,
+        vx: (Math.random() - 0.5) * 0.24,
         vy: -((y - targetY) / frames),
-        r: 0.7 + Math.random() * 1.8,
+        r: 0.8 + Math.random() * 1.9,
         life: 0,
         maxLife: frames,
         hue: 40 + Math.random() * 14,
-        bright: 74 + Math.random() * 22,
-        star: Math.random() < 0.28
+        bright: 76 + Math.random() * 20,
+        star: Math.random() < 0.30
       };
     }
 

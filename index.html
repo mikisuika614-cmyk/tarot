@@ -597,15 +597,27 @@
   /* ===== 点击整体反馈 ===== */
 
   /* 粒子画布：铺满按钮，压在文字下面 */
-  .btn .btn-particles {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 100%;
-    height: calc(100% + 46px);   /* 向上多留 46px，让粒子飘出按钮后还能看见一段 */
-    pointer-events: none;
-    z-index: 4;
+  /* 按钮容器：给粒子画布定位用，本身不参与布局占位 */
+  .btn-wrap {
+    position: relative;
+    display: inline-block;
   }
+  /* 粒子画布：独立一层，覆盖按钮上方区域，不影响按钮本身 */
+  .btn-wrap .btn-particles {
+    position: absolute;
+    left: 50%;
+    bottom: -4px;
+    width: 248px;
+    height: 160px;
+    margin-left: -124px;
+    pointer-events: none;
+    z-index: 0;
+    transform: translateZ(0);
+    will-change: transform;
+    contain: strict;
+  }
+  /* 按钮压在画布上方 */
+  .btn-wrap .btn { position: relative; z-index: 2; }
 
   /* 顶部那道弧形反光 */
   .btn .btn-gloss {
@@ -972,7 +984,7 @@
     </div>
   </div>
 
-  <button class="btn" id="mainBtn"><canvas class="btn-particles" id="btnParticles"></canvas><span class="btn-gloss"></span><span class="btn-spinner"></span><span class="btn-label">洗 牌</span></button>
+  <div class="btn-wrap"><canvas class="btn-particles" id="btnParticles"></canvas><button class="btn" id="mainBtn"><span class="btn-gloss"></span><span class="btn-spinner"></span><span class="btn-label">洗 牌</span></button></div>
 
   <div class="question-box" id="questionBox">
     <input class="question-input" id="questionInput" placeholder="想问的事（可以不填）" maxlength="20">
