@@ -20,31 +20,23 @@
     }
 
     function spawn() {
-      // 从按钮内部随机位置冒出来
-      var edge = Math.random();
-      var x, y;
-      if (edge < 0.62) {
-        // 沿上边缘冒
-        x = W * (0.08 + Math.random() * 0.84);
-        y = H * (0.15 + Math.random() * 0.5);
-      } else if (edge < 0.82) {
-        x = W * (0.03 + Math.random() * 0.12);
-        y = H * (0.3 + Math.random() * 0.5);
-      } else {
-        x = W * (0.85 + Math.random() * 0.12);
-        y = H * (0.3 + Math.random() * 0.5);
-      }
+      // 全部在按钮内部，从偏下的位置开始，上升距离不超出上沿
+      var x = W * (0.06 + Math.random() * 0.88);
+      var y = H * (0.45 + Math.random() * 0.45);   // 从中间偏下开始
+      // 上升距离控制在到顶之前结束
+      var rise = H * (0.20 + Math.random() * 0.24);   // 只升 20~44% 高度
+      var frames = 60 + Math.random() * 70;
       return {
         x: x,
         y: y,
-        vx: (Math.random() - 0.5) * 0.42,
-        vy: -(0.28 + Math.random() * 0.62),
-        r: 0.7 + Math.random() * 1.9,
+        vx: (Math.random() - 0.5) * 0.30,
+        vy: -(rise / frames),          // 按目标距离算速度
+        r: 0.7 + Math.random() * 1.8,
         life: 0,
-        maxLife: 70 + Math.random() * 90,
-        hue: 40 + Math.random() * 14,   // 只走金色系：40~54
+        maxLife: frames,
+        hue: 40 + Math.random() * 14,
         bright: 74 + Math.random() * 22,
-        star: Math.random() < 0.30
+        star: Math.random() < 0.28
       };
     }
 
@@ -63,7 +55,7 @@
         p.life++;
         p.x += p.vx;
         p.y += p.vy;
-        p.vy -= 0.004;         // 缓慢加速上升
+        p.vy -= 0.0015;   // 极轻微加速，不会冲出边界
         p.vx += (Math.random() - 0.5) * 0.05;  // 轻微飘
 
         var t = p.life / p.maxLife;
@@ -74,8 +66,8 @@
 
         // 淡入淡出
         var alpha;
-        if (t < 0.18) alpha = t / 0.18;
-        else if (t > 0.7) alpha = (1 - t) / 0.3;
+        if (t < 0.26) alpha = t / 0.26;
+        else if (t > 0.62) alpha = (1 - t) / 0.38;
         else alpha = 1;
         alpha *= 0.9;
 
