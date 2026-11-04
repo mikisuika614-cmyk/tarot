@@ -543,7 +543,6 @@
       box-shadow .22s ease,
       background .3s ease,
       filter .2s ease;
-    overflow: hidden;
     -webkit-tap-highlight-color: transparent;
     -webkit-user-select: none;
     user-select: none;
@@ -591,33 +590,24 @@
 
   /* ===== 点击整体反馈 ===== */
   .shockwave {
-    position: fixed;
-    width: 20px; height: 20px;
-    margin-left: -10px; margin-top: -10px;
+    position: absolute;
+    left: 50%; top: 50%;
+    width: 24px; height: 24px;
+    margin-left: -12px; margin-top: -12px;
     border-radius: 50%;
     border: 2px solid rgba(240, 210, 130, .85);
     box-shadow: 0 0 24px rgba(230, 195, 110, .55),
                 0 0 48px rgba(201, 162, 39, .28) inset;
     pointer-events: none;
-    z-index: 200;
+    z-index: 1;
     animation: shockOut 1.5s cubic-bezier(.25, .5, .2, 1) forwards;
   }
   @keyframes shockOut {
     0%   { transform: scale(1); opacity: 0; border-width: 2px; }
     12%  { opacity: .75; }
     40%  { opacity: .42; }
-    100% { transform: scale(19); opacity: 0; border-width: 0.5px; }
+    100% { transform: scale(9); opacity: 0; border-width: 0.5px; }
   }
-
-  /* 屏幕轻微震动 */
-  @keyframes shakeSoft {
-    0%, 100% { transform: translate(0, 0); }
-    22% { transform: translate(-0.8px, 0.6px); }
-    44% { transform: translate(0.8px, -0.6px); }
-    66% { transform: translate(-0.5px, -0.7px); }
-    84% { transform: translate(0.4px, 0.5px); }
-  }
-  body.shake-soft { animation: shakeSoft .55s ease-in-out; }
 
   /* 牌位受冲击轻抖 */
   @keyframes joltCards {
@@ -1380,21 +1370,13 @@
     var cx = br.left + br.width / 2;
     var cy = br.top + br.height / 2;
 
-    // 2) 金色冲击波
+    // 2) 金色冲击波（挂在按钮内部，从中心扩散，不跟页面位移）
     var wave = document.createElement('div');
     wave.className = 'shockwave';
-    wave.style.left = cx + 'px';
-    wave.style.top = cy + 'px';
-    document.body.appendChild(wave);
+    elBtn.appendChild(wave);
     setTimeout(function () {
       if (wave.parentNode) wave.parentNode.removeChild(wave);
     }, 1560);
-
-    // 3) 屏幕轻微震动
-    document.body.classList.add('shake-soft');
-    setTimeout(function () {
-      document.body.classList.remove('shake-soft');
-    }, 580);
 
     // 4) 三张牌位抖一下
     var wrap = document.querySelector('.spread-wrap');
