@@ -508,16 +508,90 @@
 
   /* 按钮 */
   .btn {
+    position: relative;
     width: 220px; height: 46px; border-radius: 23px;
     font-size: 14px; letter-spacing: 4px; border: none; cursor: pointer;
     background: linear-gradient(135deg, #4a3a70 0%, #2a2048 100%);
     color: #f7ecc0;
     box-shadow: 0 0 0 1px rgba(201,162,39,.35) inset, 0 6px 20px rgba(80,60,140,.45);
     font-family: inherit;
-    transition: all .25s;
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1),
+                box-shadow .25s ease,
+                background .3s ease;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
   }
-  .btn:active { transform: scale(.97); }
-  .btn:disabled { opacity: .5; }
+  /* 鼠标移上去：金边亮起来 */
+  .btn:hover {
+    background: linear-gradient(135deg, #574580 0%, #342860 100%);
+    box-shadow: 0 0 0 1px rgba(230,200,120,.65) inset,
+                0 6px 24px rgba(110,80,190,.55),
+                0 0 24px rgba(201,162,39,.28);
+  }
+  /* 按下：缩一下，内阴影加深 */
+  .btn:active {
+    transform: scale(.94);
+    box-shadow: 0 0 0 1px rgba(230,200,120,.8) inset,
+                0 2px 10px rgba(60,40,110,.7) inset,
+                0 2px 10px rgba(110,80,190,.4);
+    transition-duration: .08s;
+  }
+  /* 松开回弹由 transition 的 cubic-bezier(.34,1.56,.64,1) 带来 */
+  .btn:disabled { opacity: .55; cursor: default; }
+
+  /* 按钮上的流光：缓慢扫过 */
+  .btn::before {
+    content: "";
+    position: absolute;
+    top: 0; left: -60%;
+    width: 45%; height: 100%;
+    background: linear-gradient(105deg,
+      transparent 0%,
+      rgba(255,240,200,.22) 45%,
+      rgba(255,255,255,.42) 50%,
+      rgba(255,240,200,.22) 55%,
+      transparent 100%);
+    transform: skewX(-18deg);
+    animation: btnSheen 4.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @keyframes btnSheen {
+    0%, 62% { left: -60%; }
+    88%, 100% { left: 120%; }
+  }
+
+  /* 按下的涟漪 */
+  .btn .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,235,170,.75) 0%, rgba(201,162,39,.35) 45%, transparent 70%);
+    transform: translate(-50%, -50%) scale(0);
+    animation: rippleGo .62s cubic-bezier(.2,.7,.3,1) forwards;
+    pointer-events: none;
+  }
+  @keyframes rippleGo {
+    0%   { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+  }
+
+  /* 洗牌中：文字 + 旋转图标 */
+  .btn .btn-label { position: relative; z-index: 2; }
+  .btn .btn-spinner {
+    display: none;
+    position: absolute;
+    left: 24px; top: 50%;
+    width: 14px; height: 14px;
+    margin-top: -7px;
+    border: 2px solid rgba(247,236,192,.3);
+    border-top-color: #f7ecc0;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    z-index: 2;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .btn.loading .btn-spinner { display: block; }
+  .btn.loading .btn-label { padding-left: 14px; }
+  .btn.loading::before { animation: none; opacity: 0; }
 
   .question-box { margin-top: 18px; width: 100%; }
   .question-input {
@@ -811,7 +885,7 @@
     </div>
   </div>
 
-  <button class="btn" id="mainBtn">洗 牌</button>
+  <button class="btn" id="mainBtn"><span class="btn-spinner"></span><span class="btn-label">洗 牌</span></button>
 
   <div class="question-box" id="questionBox">
     <input class="question-input" id="questionInput" placeholder="想问的事（可以不填）" maxlength="20">
@@ -1000,11 +1074,11 @@
     renderSpread();
     renderReadings();
     if (state.stage === 'result') {
-      elBtn.textContent = '再抽一次';
+      setBtnText('再抽一次');
     } else if (state.stage === 'revealed') {
-      elBtn.textContent = '重新洗牌';
+      setBtnText('重新洗牌');
     } else {
-      elBtn.textContent = '洗 牌';
+      setBtnText('洗 牌');
     }
     elBtn.disabled = state.stage === 'drawing';
     elQBox.style.display = (state.stage === 'idle') ? 'block' : 'none';
@@ -1183,6 +1257,9 @@
     elReadings.innerHTML = '';
     render();
 
+    setBtnLoading(true);
+    setBtnText('洗牌中');
+
     var final = pickUnique(3);
 
     // 先把三张牌的背面撑出来（DOM 里要有牌位），再洗牌、收缩、发牌
@@ -1215,7 +1292,8 @@
         if (sl) { sl.style.opacity = '1'; }
       }
       state.stage = 'revealed';
-      elBtn.textContent = '重新洗牌';
+      setBtnLoading(false);
+      setBtnText('重新洗牌');
       elBtn.disabled = false;
     });
   }
@@ -1306,7 +1384,7 @@
     if (allFlipped) {
       state.stage = 'result';
       renderReadings();
-      elBtn.textContent = '再抽一次';
+      setBtnText('再抽一次');
       save();
     }
   }
@@ -1324,6 +1402,28 @@
       });
       localStorage.setItem('tarot_history', JSON.stringify(state.history.slice(0, 50)));
     } catch (e) {}
+  }
+
+  // 点击涟漪
+  elBtn.addEventListener('pointerdown', function (e) {
+    var r = elBtn.getBoundingClientRect();
+    var d = Math.max(r.width, r.height) * 2;
+    var el = document.createElement('span');
+    el.className = 'ripple';
+    el.style.width = d + 'px';
+    el.style.height = d + 'px';
+    el.style.left = (e.clientX - r.left) + 'px';
+    el.style.top = (e.clientY - r.top) + 'px';
+    elBtn.appendChild(el);
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 640);
+  });
+
+  function setBtnText(txt) {
+    var lb = elBtn.querySelector('.btn-label');
+    if (lb) lb.textContent = txt; else elBtn.textContent = txt;
+  }
+  function setBtnLoading(on) {
+    elBtn.classList.toggle('loading', !!on);
   }
 
   elBtn.addEventListener('click', function () {
