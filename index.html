@@ -539,7 +539,7 @@
 
     transform: translateY(0) scale(1);
     transition:
-      transform .34s cubic-bezier(.34, 1.72, .5, 1),
+      transform .52s cubic-bezier(.28, 2.05, .45, 1),
       box-shadow .22s ease,
       background .3s ease,
       filter .2s ease;
@@ -600,32 +600,33 @@
                 0 0 48px rgba(201, 162, 39, .28) inset;
     pointer-events: none;
     z-index: 200;
-    animation: shockOut .85s cubic-bezier(.16, .84, .3, 1) forwards;
+    animation: shockOut 1.5s cubic-bezier(.25, .5, .2, 1) forwards;
   }
   @keyframes shockOut {
-    0%   { transform: scale(1); opacity: .95; border-width: 3px; }
-    55%  { opacity: .55; }
-    100% { transform: scale(26); opacity: 0; border-width: 0.5px; }
+    0%   { transform: scale(1); opacity: 0; border-width: 2px; }
+    12%  { opacity: .75; }
+    40%  { opacity: .42; }
+    100% { transform: scale(19); opacity: 0; border-width: 0.5px; }
   }
 
   /* 屏幕轻微震动 */
   @keyframes shakeSoft {
     0%, 100% { transform: translate(0, 0); }
-    18% { transform: translate(-1.5px, 1px); }
-    36% { transform: translate(1.5px, -1px); }
-    54% { transform: translate(-1px, -1.5px); }
-    72% { transform: translate(1px, 1.5px); }
+    22% { transform: translate(-0.8px, 0.6px); }
+    44% { transform: translate(0.8px, -0.6px); }
+    66% { transform: translate(-0.5px, -0.7px); }
+    84% { transform: translate(0.4px, 0.5px); }
   }
-  body.shake-soft { animation: shakeSoft .3s ease-in-out; }
+  body.shake-soft { animation: shakeSoft .55s ease-in-out; }
 
   /* 牌位受冲击轻抖 */
   @keyframes joltCards {
     0%, 100% { transform: translateY(0) scale(1); }
-    22% { transform: translateY(-5px) scale(1.018); }
-    48% { transform: translateY(2px) scale(.995); }
-    72% { transform: translateY(-2px) scale(1.006); }
+    30% { transform: translateY(-3px) scale(1.010); }
+    58% { transform: translateY(1px) scale(.998); }
+    80% { transform: translateY(-1px) scale(1.003); }
   }
-  .spread-wrap.jolt { animation: joltCards .42s cubic-bezier(.3,.8,.3,1); }
+  .spread-wrap.jolt { animation: joltCards .72s cubic-bezier(.34,1.2,.3,1); }
 
   /* 粒子画布：铺满按钮，压在文字下面 */
   .btn .btn-particles {
@@ -1368,6 +1369,12 @@
 
   // ===== 第一次点击的整体反馈 =====
   function playDrawFeedback() {
+    // 0) 按钮按下再弹回（关键：手指已经抬起，用 JS 补一次）
+    elBtn.classList.add('pressed');
+    setTimeout(function () {
+      elBtn.classList.remove('pressed');
+    }, 130);
+
     // 1) 按钮位置
     var br = elBtn.getBoundingClientRect();
     var cx = br.left + br.width / 2;
@@ -1381,19 +1388,19 @@
     document.body.appendChild(wave);
     setTimeout(function () {
       if (wave.parentNode) wave.parentNode.removeChild(wave);
-    }, 900);
+    }, 1560);
 
     // 3) 屏幕轻微震动
     document.body.classList.add('shake-soft');
     setTimeout(function () {
       document.body.classList.remove('shake-soft');
-    }, 320);
+    }, 580);
 
     // 4) 三张牌位抖一下
     var wrap = document.querySelector('.spread-wrap');
     if (wrap) {
       wrap.classList.add('jolt');
-      setTimeout(function () { wrap.classList.remove('jolt'); }, 420);
+      setTimeout(function () { wrap.classList.remove('jolt'); }, 740);
     }
 
     // 5) 粒子爆发（加强）
