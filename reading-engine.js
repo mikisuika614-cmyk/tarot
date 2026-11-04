@@ -114,10 +114,16 @@
 
   // ===== 建议生成 =====
   // 三张牌的建议全部按"问题类别"优先取，避免不同问题给出同一套话
-  function buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName) {
+  function buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName, topicSub) {
     var VOICE = window.TAROT_VOICE || {};
-    var TV = (window.TOPIC_VOICE || {})[topicName] || {};
-    var hasTopic = Object.keys(TV).length > 0;
+    var ALLTV = window.TOPIC_VOICE || {};
+    // 优先用子类（比如 钱·lend），没有再退回主类
+    var TV = {};
+    if (topicSub && ALLTV[topicName + '·' + topicSub]) {
+      TV = ALLTV[topicName + '·' + topicSub];
+    } else {
+      TV = ALLTV[topicName] || {};
+    }
     var items = [];
     var used = {};
 
@@ -165,7 +171,7 @@
   }
 
   // ---- 主函数 ----
-  function buildCombinedReading(drawn, question, topicName) {
+  function buildCombinedReading(drawn, question, topicName, topicSub) {
     if (!drawn || drawn.length < 3) return null;
     var valid = drawn.filter(function (d) { return d && d.card; });
     if (valid.length < 3) return null;
@@ -261,7 +267,7 @@
       landing += ' 现在最该做的可能是等一等，把手上的事收干净。';
     }
 
-    var advice = buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName);
+    var advice = buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName, topicSub);
 
     return {
       opening: opening,

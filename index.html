@@ -1199,15 +1199,15 @@
   </div>
 </div>
 
-<script src="cards.js"></script>
-<script src="insights.js"></script>
-<script src="question-analysis.js"></script>
-<script src="card-voices.js"></script>
-<script src="topic-voices.js"></script>
-<script src="reading-engine.js"></script>
-<script src="corner-deco.js"></script>
-<script src="magic-particles.js"></script>
-<script src="sfx.js"></script>
+<script src="cards.js?v=2"></script>
+<script src="insights.js?v=2"></script>
+<script src="question-analysis.js?v=2"></script>
+<script src="card-voices.js?v=2"></script>
+<script src="topic-voices.js?v=2"></script>
+<script src="reading-engine.js?v=2"></script>
+<script src="corner-deco.js?v=2"></script>
+<script src="magic-particles.js?v=2"></script>
+<script src="sfx.js?v=2"></script>
 <script>
 (function () {
   // 预加载全部卡面，避免翻开时图还没到
@@ -1340,7 +1340,8 @@
       combined = window.buildCombinedReading(
         state.drawn,
         q,
-        qr ? qr.topic : '综合'
+        qr ? qr.topic : '综合',
+        qr ? qr.sub : ''
       );
     }
 

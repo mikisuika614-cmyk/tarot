@@ -40,17 +40,31 @@ var TOPICS = [
     id: 'self',
     name: '自我',
     words: ['自己', '人生', '意义', '方向', '迷茫', '焦虑', '累', '撑不住',
-            '价值', '未来', '目标', '状态', '情绪', '抑郁', '难过', '改变', '习惯'],
+            '价值', '未来', '目标', '状态', '情绪', '抑郁', '难过', '改变', '习惯',
+            '睡', '失眠', '睡不好', '睡不着', '身体', '健康', '疲惫', '烦躁',
+            '压力', '崩溃', '慌', '不安', '孤独', '空虚', '迷茫'],
     focus: '能问出这个问题，说明你已经在往外看了。',
     adviceTail: '不用一次想通所有事，先把眼前这一周过明白。'
   },
   {
     id: 'money',
     name: '钱',
-    words: ['钱', '钱', '财富', '存钱', '花', '投资', '理财', '负债', '欠',
-            '借', '还', '买', '房', '车', '工资', '收入', '支出', '债'],
+    words: ['钱', '财富', '存钱', '花', '投资', '理财', '负债', '欠',
+            '借', '借钱', '还钱', '还债', '买', '房', '车', '工资', '收入', '支出',
+            '债', '贷款', '分期', '利息', '亏', '赚', '股票', '基金'],
     focus: '钱的事背后通常是一个安全感的问题。',
-    adviceTail: '先把数字算清楚。很多焦虑在算完之后会小一半。'
+    adviceTail: '先把数字算清楚。很多焦虑在算完之后会小一半。',
+    // 细分：借钱给人 vs 自己投资
+    sub: function (q) {
+      var lend = ['借', '要借', '借给', '借出', '还钱', '还债', '欠'];
+      var invest = ['投资', '理财', '股票', '基金', '买', '赚', '买入', '加仓'];
+      var lc = 0, ic = 0;
+      for (var i = 0; i < lend.length; i++) if (q.indexOf(lend[i]) >= 0) lc++;
+      for (var j = 0; j < invest.length; j++) if (q.indexOf(invest[j]) >= 0) ic++;
+      if (lc > ic) return 'lend';
+      if (ic > lc) return 'invest';
+      return '';
+    }
   }
 ];
 
@@ -108,8 +122,15 @@ function buildQuestionReading(question, drawn) {
     tone = '正逆各半。这件事一半能靠你，另一半得等时机。';
   }
 
+  // 有子分类时记录一下
+  var sub = '';
+  if (typeof topic.sub === 'function') {
+    try { sub = topic.sub(question) || ''; } catch (e) { sub = ''; }
+  }
+
   return {
     topic: topic.name,
+    sub: sub,
     question: question,
     intro: '你问的是「' + question + '」，属于' + topic.name + '这一类。',
     focus: topic.focus,
