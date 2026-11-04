@@ -114,15 +114,23 @@
 
   // ===== 建议生成 =====
   // 优先用每张牌的专属建议，避免所有组合都说同样的话
-  function buildAdvice(drawn, totalEnergy, revCount, pairHit) {
+  function buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName) {
     var VOICE = window.TAROT_VOICE || {};
     var items = [];
     var used = {};
 
-    // 1) 先取"当下"这张牌的专属建议（最相关）
+    // 0) 优先用"这个类别下"的建议（最贴合问题）
+    var TV = (window.TOPIC_VOICE || {})[topicName] || {};
     var nowItem = drawn[1];
+    var topicAdv = TV[nowItem.card.id];
+    if (topicAdv && topicAdv.advice) {
+      items.push(topicAdv.advice);
+      used[topicAdv.advice] = 1;
+    }
+
+    // 1) 再取这张牌的通用建议（如果和类别建议不同）
     var nowV = VOICE[nowItem.card.id];
-    if (nowV && nowV.advice) {
+    if (nowV && nowV.advice && !used[nowV.advice]) {
       items.push(nowV.advice);
       used[nowV.advice] = 1;
     }
@@ -256,7 +264,7 @@
       landing += ' 现在最该做的可能是等一等，把手上的事收干净。';
     }
 
-    var advice = buildAdvice(drawn, totalEnergy, revCount, pairHit);
+    var advice = buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName);
 
     return {
       opening: opening,
