@@ -20,17 +20,20 @@
     }
 
     function spawn() {
-      // 全部在按钮内部，从偏下的位置开始，上升距离不超出上沿
+      // 画布比按钮高 46px。按钮底部 = H，按钮顶部 = H - btnH
+      var btnH = 50;
+      var topEdge = Math.max(6, H - btnH);           // 按钮上沿在画布里的 y
       var x = W * (0.06 + Math.random() * 0.88);
-      var y = H * (0.45 + Math.random() * 0.45);   // 从中间偏下开始
-      // 上升距离控制在到顶之前结束
-      var rise = H * (0.20 + Math.random() * 0.24);   // 只升 20~44% 高度
-      var frames = 60 + Math.random() * 70;
+      // 从按钮内部偏下出发
+      var y = topEdge + btnH * (0.35 + Math.random() * 0.55);
+      // 一路飘到按钮上方（甚至画布顶部附近）再淡出
+      var targetY = Math.max(4, topEdge * (0.05 + Math.random() * 0.55));
+      var frames = 90 + Math.random() * 80;
       return {
         x: x,
         y: y,
-        vx: (Math.random() - 0.5) * 0.30,
-        vy: -(rise / frames),          // 按目标距离算速度
+        vx: (Math.random() - 0.5) * 0.26,
+        vy: -((y - targetY) / frames),
         r: 0.7 + Math.random() * 1.8,
         life: 0,
         maxLife: frames,
@@ -55,7 +58,7 @@
         p.life++;
         p.x += p.vx;
         p.y += p.vy;
-        p.vy -= 0.0015;   // 极轻微加速，不会冲出边界
+        p.vy -= 0.0006;   // 几乎不加速，保持匀速上飘
         p.vx += (Math.random() - 0.5) * 0.05;  // 轻微飘
 
         var t = p.life / p.maxLife;
@@ -66,8 +69,8 @@
 
         // 淡入淡出
         var alpha;
-        if (t < 0.26) alpha = t / 0.26;
-        else if (t > 0.62) alpha = (1 - t) / 0.38;
+        if (t < 0.14) alpha = t / 0.14;
+        else if (t > 0.72) alpha = (1 - t) / 0.28;
         else alpha = 1;
         alpha *= 0.9;
 

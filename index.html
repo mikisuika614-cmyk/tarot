@@ -599,12 +599,12 @@
   /* 粒子画布：铺满按钮，压在文字下面 */
   .btn .btn-particles {
     position: absolute;
-    inset: 0;
+    left: 0;
+    bottom: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% + 46px);   /* 向上多留 46px，让粒子飘出按钮后还能看见一段 */
     pointer-events: none;
     z-index: 4;
-    border-radius: inherit;
   }
 
   /* 顶部那道弧形反光 */
