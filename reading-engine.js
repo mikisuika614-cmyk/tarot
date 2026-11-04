@@ -257,9 +257,21 @@
       var v = VOICE[item.card.id];
       var side = item.reversed ? '逆位' : '正位';
       var body;
-      // 第二张（当下）的 inNow 已经在 opening 里说过了，这里换个角度
-      if (j === 1 && v && v.advice) {
-        body = '这张牌提示的是：' + v.advice;
+      // 第二张（当下）：opening 已经说过它的 inNow，这里用"它在起什么作用"的角度
+      if (j === 1) {
+        var tr = TRAITS[item.card.id] || {};
+        var nat = tr.nature || '';
+        var realm = tr.realm || '';
+        var midMap = {
+          '外在': '外面的', '内在': '你自己心里的', '关系': '你和别人之间的'
+        };
+        if (nat && realm) {
+          body = '眼下卡住的，是' + (midMap[realm] || realm) + '那一块。';
+        } else if (v && v.inNow) {
+          body = v.inNow;
+        } else {
+          body = '它就是当下这个局面本身。';
+        }
       } else if (v && v[FLD[j]]) {
         body = v[FLD[j]];
       } else {
