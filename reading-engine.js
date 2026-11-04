@@ -70,15 +70,49 @@
     { key: 'future',  lead: '往下走的趋势，' }
   ];
 
-  // ===== 问题主题的落点语 =====
+  // ===== 落点语：每个主题多句，按未来牌的 id 轮着取，保证每次都不同 =====
   var TOPIC_LANDING = {
-    '感情': '感情里最难的不是判断对方，是承认自己那一半。',
-    '工作': '工作上的事，先把「我值多少」和「这件事值多少」分开算。',
-    '选择': '两个选项都说得通的时候，比的不是哪个更好，是你更愿意为哪个负责。',
-    '人际': '人和人之间，不是所有裂缝都需要补。有些只需要保持距离。',
-    '自我': '关于自己的问题，通常不是想不明白，是不敢承认。',
-    '钱': '钱的事，先算清楚数字，再谈感受。',
-    '综合': '这件事眼下没有明显方向，也不算坏。没被哪个念头绑死，反而还有空间。'
+    '感情': [
+      '感情里最难的往往不是判断对方，是承认自己那一半。',
+      '这段关系值不值得，答案在你身上的反应里，不在对方的态度里。',
+      '喜欢这件事不需要理由，但走下去需要方法。',
+      '先问自己舒不舒服，再问对方爱不爱你。',
+      '你在意的到底是这个人，还是"有个人"这件事。'
+    ],
+    '工作': [
+      '把「我值多少」和「这件事值多少」分开算。',
+      '这份工作给你的东西，值得你继续投入多少，是能算清楚的。',
+      '职场上的忍耐都是有价的，先想清楚你的价格。',
+      '你在这份工作上花的力气，是不是用在了会被看见的地方。',
+      '值不值得留，看它有没有让你长本事，不只是看待遇。'
+    ],
+    '选择': [
+      '两个选项都说得通时，比的不是哪个更好，是你更愿意为哪个负责。',
+      '选择难，通常是因为两个都舍不得。那就比"丢了哪个更后悔"。',
+      '没有完美的选项，只有你愿意承担的那个。',
+      '先想清楚最坏的结果，再看自己受不受得了。',
+      '选错了可以改，一直不选才真的没有回头路。'
+    ],
+    '人际': [
+      '不是所有裂缝都需要补，有些只需要保持距离。',
+      '关系里最贵的不是分开，是明明想分开却一直凑合。',
+      '该说的说清楚，比一直让着更长久。'
+    ],
+    '自我': [
+      '关于自己的问题，通常不是想不明白，是不敢承认。',
+      '你不是不够好，是给自己的标准太高了。',
+      '先照顾好自己，再谈成为更好的自己。'
+    ],
+    '钱': [
+      '钱的事，先算清楚数字，再谈感受。',
+      '所有"感觉还行"的判断，都不如一张写清楚的账单。',
+      '钱上的决定要看最坏的情况，不是最好的情况。'
+    ],
+    '综合': [
+      '这件事眼下没有明显方向，也不算坏。没被哪个念头绑死，反而还有空间。',
+      '信息还不够的时候，先不急着下结论。',
+      '现在说不清，那就先过着，答案会自己浮出来。'
+    ]
   };
 
   // ---- 工具 ----
@@ -223,19 +257,22 @@
       var v = VOICE[item.card.id];
       var side = item.reversed ? '逆位' : '正位';
       var body;
-      if (v && v[FLD[j]]) {
+      // 第二张（当下）的 inNow 已经在 opening 里说过了，这里换个角度
+      if (j === 1 && v && v.advice) {
+        body = '这张牌提示的是：' + v.advice;
+      } else if (v && v[FLD[j]]) {
         body = v[FLD[j]];
       } else {
         var trait = TRAITS[item.card.id] || { label: item.card.name };
         body = '它在做的是：' + trait.label + '。';
       }
-      // 逆位时加一句转折，让同一张牌正逆位读起来不同
-      if (item.reversed) {
-        body += '（这张是逆位，所以上面的意思是"卡在这儿"，不是"正在发生"。）';
-      }
       flowParts.push(item.card.name + side + '：' + body);
     }
     var flow = flowParts.join(' ');
+    // 逆位注释只加一次，放在整段末尾
+    if (revCount > 0) {
+      flow += ' （逆位的部分，读法是"卡在这儿"，不是"正在发生"。）';
+    }
 
     // 3) 牌间关系
     var tension = '';
@@ -260,18 +297,46 @@
       }
     }
 
-    // 4) 落到问题
-    var landing = TOPIC_LANDING[topicName] || TOPIC_LANDING['综合'];
+    // 4) 落到问题：主句按"未来"牌的性质挑，避免同一主题总是同一句
+    var landPool2 = TOPIC_LANDING[topicName] || TOPIC_LANDING['综合'];
+    var landBase = landPool2[drawn[2].card.id % landPool2.length];
+    var futTrait = TRAITS[drawn[2].card.id] || {};
+    var landLead = '';
+    switch (futTrait.nature) {
+      case '终结': landLead = '结论很清楚：有些东西必须先结束，才能有下一步。'; break;
+      case '崩塌': landLead = '这件事可能要推翻重来，别急着修补。'; break;
+      case '疗愈': landLead = '方向是好的，只是需要时间养。'; break;
+      case '完成': landLead = '这一轮快走到头了，重点是收尾而不是开新局。'; break;
+      case '内省': case '退守': landLead = '答案不在外面，在你自己身上。'; break;
+      case '冲刺': case '动手': landLead = '别再想了，动手比想清楚重要。'; break;
+      case '取舍': case '调和': landLead = '中间那条路是存在的，别非黑即白。'; break;
+      case '明朗': landLead = '现在条件不错，趁热做决定。'; break;
+      case '迷雾': landLead = '现在看不清是正常的，别急着定论。'; break;
+      case '悬停': landLead = '暂时动不了，那就先不动。'; break;
+      default: landLead = landBase;
+    }
+    // 开头和主题句只取一个（避免同源重复），结尾换成"动作方向"
+    var landing;
+    if (landLead && landLead !== landBase) {
+      landing = landLead + ' ' + landBase;
+    } else {
+      landing = landBase;
+    }
     if (question) {
       landing = '回到你问的「' + question + '」：' + landing;
     }
     // 附一句方向建议，按总能量给
+    var landPool;
     if (totalEnergy >= 2) {
-      landing += ' 这一次可以往前推，别等所有条件都齐。';
+      landPool = ['这回可以主动一点。', '时机在你这边。'];
     } else if (totalEnergy >= 0) {
-      landing += ' 先动一小步试水，别一次押上去。';
+      landPool = ['先从小处试。', '定个小期限，到点就做。'];
     } else {
-      landing += ' 现在最该做的可能是等一等，把手上的事收干净。';
+      landPool = ['先别急着动。', '等这一段过去。'];
+    }
+    // 只有落点还不够长时才补
+    if (landing.length < 70) {
+      landing += ' ' + landPool[Math.floor(Math.random() * landPool.length)];
     }
 
     var advice = buildAdvice(drawn, totalEnergy, revCount, pairHit, topicName, topicSub);
