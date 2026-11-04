@@ -703,6 +703,7 @@
     position: fixed;
     right: 14px;
     top: 14px;
+    z-index: 500;
     width: 26px; height: 26px;
     border-radius: 50%;
     border: 1px solid rgba(201,162,39,.28);
@@ -1081,17 +1082,18 @@
 </style>
 </head>
 <body>
-<div class="phone">
-  <div class="header">
-    <span class="title">今日运势</span>
-    <span class="subtitle" id="subtitle"></span>
-    <div class="divider"></div>
     <button class="sfx-toggle" id="sfxToggle" title="开关音效">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
         <path d="M11 5 6 9H3v6h3l5 4V5z"/>
         <path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/>
       </svg>
     </button>
+
+<div class="phone">
+  <div class="header">
+    <span class="title">今日运势</span>
+    <span class="subtitle" id="subtitle"></span>
+    <div class="divider"></div>
   </div>
 
   <div class="spread-wrap">
