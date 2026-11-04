@@ -54,7 +54,7 @@
     padding: 10px 16px 40px;
   }
 
-  .header { text-align: center; margin-bottom: 22px; position: relative; padding-right: 0; }
+  .header { text-align: center; margin-bottom: 22px; position: relative; padding-right: 30px; }
   .title {
     display: block;
     font-size: 26px;
@@ -698,14 +698,19 @@
   .btn.loading::before { animation: none; opacity: 0; }
 
   /* 音效开关 */
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .title-row .title {
+    display: inline-block;
+  }
   .sfx-toggle {
-    position: fixed;
-    right: 14px;
-    top: 14px;
-    z-index: 500;
-    /* 明确不随滚动移动 */
-    margin: 0;
-    transform: none;
+    position: relative;
+    flex: none;
+    width: 26px; height: 26px;
     width: 26px; height: 26px;
     border-radius: 50%;
     border: 1px solid rgba(201,162,39,.28);
@@ -1147,7 +1152,15 @@
 <div class="phone">
 
   <div class="header">
-    <span class="title">今日运势</span>
+    <div class="title-row">
+      <span class="title">今日运势</span>
+      <button class="sfx-toggle" id="sfxToggle" title="开关音效">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M11 5 6 9H3v6h3l5 4V5z"/>
+          <path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/>
+        </svg>
+      </button>
+    </div>
     <span class="subtitle" id="subtitle"></span>
     <div class="divider"></div>
   </div>
@@ -1863,12 +1876,5 @@
   render();
 })();
 </script>
-
-  <button class="sfx-toggle" id="sfxToggle" title="开关音效">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path d="M11 5 6 9H3v6h3l5 4V5z"/>
-        <path class="wave" d="M15.5 8.5a5 5 0 0 1 0 7"/>
-      </svg>
-    </button>
 </body>
 </html>

@@ -151,15 +151,22 @@
       push(a0);
     }
 
-    // 4) 还不够，按能量给"怎么用力"
+    // 4) 还不够，按能量给"怎么用力"（措辞轮换，避免总出现同一句）
     if (items.length < 3) {
-      var toneAdvice;
-      if (totalEnergy >= 3) toneAdvice = '现在有推力，但这股劲来得快也去得快。趁它还热，先做最重要的那件。';
-      else if (totalEnergy >= 1) toneAdvice = '先动一小步试水，别一次押上去。走两步看看反应，再决定下一步。';
-      else if (totalEnergy === 0) toneAdvice = '现在最适合做的是"整理"，不是"推进"。把手上的事收一收。';
-      else if (totalEnergy >= -2) toneAdvice = '这几天别做重大决定。等局面的重心回到中间，你的判断会准很多。';
-      else toneAdvice = '先止损。现在不是翻盘的时候，是别再掉下去的时候。';
-      push(toneAdvice);
+      var tonePool;
+      if (totalEnergy >= 3) {
+        tonePool = ['趁这股劲还在，挑最重要的一件先做。', '现在推得动，别浪费这段。'];
+      } else if (totalEnergy >= 1) {
+        tonePool = ['走两步看反应，别一口气全押。', '先做出来，再调整。', '不用想周全，先有个开头。'];
+      } else if (totalEnergy === 0) {
+        tonePool = ['现在适合整理，不适合推进。', '把手上的事收一收，比再开新的强。'];
+      } else if (totalEnergy >= -2) {
+        tonePool = ['这几天先别做重大决定。', '等局面回稳一点，判断会准很多。', '现在最该做的是不动，不是硬撑。'];
+      } else {
+        tonePool = ['先止损。', '现在不是翻盘的时候，是别再往下掉的时候。'];
+      }
+      // 随机取一条，避免每次一样
+      push(tonePool[Math.floor(Math.random() * tonePool.length)]);
     }
 
     // 5) 逆位多时补一句（仅当还有空位）
