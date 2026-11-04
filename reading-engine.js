@@ -113,65 +113,49 @@
   }
 
   // ===== 建议生成 =====
-  // 按三张牌的性质和能量，给具体可执行的建议，不与前面的段落重复
+  // 优先用每张牌的专属建议，避免所有组合都说同样的话
   function buildAdvice(drawn, totalEnergy, revCount, pairHit) {
+    var VOICE = window.TAROT_VOICE || {};
     var items = [];
-    var t0 = TRAITS[drawn[0].card.id] || {};
-    var t1 = TRAITS[drawn[1].card.id] || {};
-    var t2 = TRAITS[drawn[2].card.id] || {};
+    var used = {};
 
-    // 按"过去"牌的性质决定要不要了断
-    if (t0.nature === '终结' || t0.nature === '崩塌') {
-      items.push('过去那一段已经结束了，别再反复复盘。复盘不会改变什么，只会让你更累。');
-    } else if (t0.nature === '纠缠' || t0.nature === '迷雾') {
-      items.push('先认出是什么在拖你。说不清的东西，你没法跟它谈条件。');
-    } else if (t0.nature === '忍耐' || t0.nature === '悬停') {
-      items.push('过去那份忍耐已经有结果了，别再拿它当现在的标准。');
+    // 1) 先取"当下"这张牌的专属建议（最相关）
+    var nowItem = drawn[1];
+    var nowV = VOICE[nowItem.card.id];
+    if (nowV && nowV.advice) {
+      items.push(nowV.advice);
+      used[nowV.advice] = 1;
     }
 
-    // 按"现在"牌决定当下动作
-    if (t1.nature === '内省' || t1.nature === '退守') {
-      items.push('这周给自己留一段完整的独处时间，不是刷手机那种，是真的安静。');
-    } else if (t1.nature === '掌控' || t1.nature === '循规') {
-      items.push('该你拍板的事，别再用「问问别人」来延后。问完自己做决定。');
-    } else if (t1.nature === '取舍') {
-      items.push('把两个选项写下来，各写三条「选了之后我要承担什么」。写完你会清楚很多。');
-    } else if (t1.nature === '滋养') {
-      items.push('先把自己喂饱。你现在的力气都给别人了。');
-    } else if (t1.nature === '冲刺' || t1.nature === '动手') {
-      items.push('别再补准备了。手上这个先做出一版很烂的，做完才有得改。');
-    } else if (t1.nature === '调和') {
-      items.push('把节奏调匀。别一天爆发一天躺平，每天固定做一点。');
+    // 2) 再取"趋势"牌的建议，告诉人往哪走
+    var futItem = drawn[2];
+    var futV = VOICE[futItem.card.id];
+    if (futV && futV.advice && !used[futV.advice]) {
+      items.push(futV.advice);
+      used[futV.advice] = 1;
     }
 
-    // 按"未来"牌给方向
-    if (t2.nature === '完成') {
-      items.push('这件事收尾之后，先停一下再找下一个目标。别用忙碌填满自己。');
-    } else if (t2.nature === '疗愈') {
-      items.push('接下来这段时间，把睡好、吃好这两件事排在所有事前面。');
-    } else if (t2.nature === '崩塌') {
-      items.push('如果有什么正在塌，别硬撑。让它倒，你反而能早点开始。');
-    } else if (t2.nature === '明朗') {
-      items.push('趁现在顺，把一直拖着的那件事办了。不顺的时候办要花好几倍力气。');
-    } else if (t2.nature === '唤醒') {
-      items.push('有句一直没说出口的话，这次找一个机会说完。说完就不用再回来第三次。');
+    // 3) 根据整体能量补一条"怎么用力"的建议
+    var toneAdvice;
+    if (totalEnergy >= 3) {
+      toneAdvice = '现在有推力，但这股劲来得快也去得快。趁它还热，先做最重要的那件。';
+    } else if (totalEnergy >= 1) {
+      toneAdvice = '先动一小步试水，别一次押上去。走两步看看反应，再决定下一步。';
+    } else if (totalEnergy === 0) {
+      toneAdvice = '现在最适合做的是"整理"，不是"推进"。把手上的事收一收。';
+    } else if (totalEnergy >= -2) {
+      toneAdvice = '这几天别做重大决定。等局面的重心回到中间，你的判断会准很多。';
+    } else {
+      toneAdvice = '先止损。现在不是翻盘的时候，是别再掉下去的时候。';
+    }
+    if (!used[toneAdvice]) items.push(toneAdvice);
+
+    // 4) 逆位多时补一句
+    if (revCount >= 2 && items.length < 3) {
+      var revAdvice = '逆位多的时候，外部条件往往是够的。你缺的是承认自己已经做了选择。';
+      if (!used[revAdvice]) items.push(revAdvice);
     }
 
-    // 按能量给一条兜底
-    if (totalEnergy <= -3) {
-      items.push('这几天不要做重大决定。等局面的重心回到中间，你的判断会准很多。');
-    } else if (totalEnergy >= 3) {
-      items.push('现在有推力，但这股劲来得快也去得快。趁它还热，先做最重要的那件。');
-    } else if (revCount >= 2) {
-      items.push('逆位多的时候，外部条件往往是够的。你缺的是承认自己已经做了选择。');
-    }
-
-    // 有特殊牌对时补一句
-    if (pairHit) {
-      items.push('这两张牌同时在说同一件事，那就不是巧合。它的分量比其他线索重。');
-    }
-
-    // 最多三条，避免啰嗦
     return items.slice(0, 3);
   }
 
@@ -189,30 +173,49 @@
       if (drawn[i].reversed) revCount++;
     }
 
+    // 开头：以"当下"这张牌为核心，每张牌有自己的说法
+    var VOICE = window.TAROT_VOICE || {};
+    var nowItem = drawn[1];
+    var nowVoice = VOICE[nowItem.card.id];
     var opening;
-    if (totalEnergy >= 3) {
-      opening = '三张牌的能量都往外推。这个局面是活的，条件基本齐了，卡你的多半不是外面。';
-    } else if (totalEnergy >= 1) {
-      opening = '整体是往前走的，但走得不算轻松。有推得动的部分，也有拖着你的部分。';
-    } else if (totalEnergy === 0) {
-      opening = '一进一退，刚好抵平。现在的状态是悬着的——不是坏，是还没定。';
-    } else if (totalEnergy >= -2) {
-      opening = '局面的重心在往回拉。这不是说你做错了什么，是这段时间本来就不适合硬推。';
+
+    if (nowVoice && nowVoice.inNow) {
+      // 有专属说法就用专属的，再补一句能量基调
+      var toneTail;
+      if (totalEnergy >= 3) toneTail = '整体上局面是活的。';
+      else if (totalEnergy >= 1) toneTail = '整体在往前，但不算轻松。';
+      else if (totalEnergy === 0) toneTail = '一进一退，现在还没定。';
+      else if (totalEnergy >= -2) toneTail = '这时候不适合硬推。';
+      else toneTail = '先稳住，别急着扭转。';
+      opening = nowVoice.inNow + ' ' + toneTail;
     } else {
-      opening = '三张牌的能量都在往下走。这种时候最重要的不是扭转，是先稳住。';
+      if (totalEnergy >= 3) opening = '三张牌的能量都往外推。这个局面是活的，条件基本齐了，卡你的多半不是外面。';
+      else if (totalEnergy >= 1) opening = '整体是往前走的，但走得不算轻松。有推得动的部分，也有拖着你的部分。';
+      else if (totalEnergy === 0) opening = '一进一退，刚好抵平。现在的状态是悬着的——不是坏，是还没定。';
+      else if (totalEnergy >= -2) opening = '局面的重心在往回拉。这不是说你做错了什么，是这段时间本来就不适合硬推。';
+      else opening = '三张牌的能量都在往下走。这种时候最重要的不是扭转，是先稳住。';
     }
 
     // 2) 因果链：把三张牌按位置串起来
+    // 因果链：每张牌按它在的位置说话
+    var FLD = ['inPast', 'inNow', 'inFuture'];
     var flowParts = [];
     for (var j = 0; j < 3; j++) {
       var item = drawn[j];
-      var trait = TRAITS[item.card.id] || { label: item.card.name };
-      var pos = POS_MEANING[j];
+      var v = VOICE[item.card.id];
       var side = item.reversed ? '逆位' : '正位';
-      var verb = item.reversed
-        ? '这件事没走通，它在说：' + trait.label
-        : '它在做的是：' + trait.label;
-      flowParts.push(pos.lead + item.card.name + '（' + side + '）。' + verb + '。');
+      var body;
+      if (v && v[FLD[j]]) {
+        body = v[FLD[j]];
+      } else {
+        var trait = TRAITS[item.card.id] || { label: item.card.name };
+        body = '它在做的是：' + trait.label + '。';
+      }
+      // 逆位时加一句转折，让同一张牌正逆位读起来不同
+      if (item.reversed) {
+        body += '（这张是逆位，所以上面的意思是"卡在这儿"，不是"正在发生"。）';
+      }
+      flowParts.push(item.card.name + side + '：' + body);
     }
     var flow = flowParts.join(' ');
 
