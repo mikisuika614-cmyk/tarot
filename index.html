@@ -13,13 +13,20 @@
 <title>今日运势</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
+  html {
+    background: #07050e;
+    min-height: 100%;
+  }
+  body {
     background: #07050e;
     color: #e8e0f0;
     font-family: -apple-system, "PingFang SC", "Microsoft YaHei", serif;
     min-height: 100vh;
     display: flex; justify-content: center;
-    padding: 24px 0 60px;
+    align-items: flex-start;
+    padding: 40px 20px 70px;
+    box-sizing: border-box;
+    margin: 0;
   }
   body::before {
     content: "";
@@ -56,9 +63,17 @@
 
   .phone {
     position: relative;
-    width: 375px;
+    width: 100%;
+    max-width: 660px;
+    overflow: hidden;
     display: flex; flex-direction: column; align-items: center;
-    padding: 10px 16px 40px;
+    padding: 26px 24px 48px;
+    border-radius: 18px;
+    border: 1px solid rgba(201, 162, 39, .15);
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(90, 60, 150, .20), transparent 62%),
+      linear-gradient(180deg, rgba(24, 18, 42, .74) 0%, rgba(12, 9, 22, .60) 100%);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .45), inset 0 1px 0 rgba(255, 255, 255, .03);
   }
 
   .header { text-align: center; margin-bottom: 22px; position: relative; width: 100%; }
@@ -536,6 +551,7 @@
   /* ===== 3D 立体按钮 ===== */
   .btn {
     position: relative;
+    z-index: 5;
     width: 220px; height: 50px;
     border-radius: 25px;
     border: none;
@@ -853,7 +869,9 @@
     letter-spacing: 1px;
   }
 
-  .question-box { margin-top: 18px; width: 100%; }
+  .question-box {
+    margin-top: 26px; width: 100%;
+  }
   .question-input {
     width: 100%; height: 40px;
     background: rgba(20, 15, 35, .7);
@@ -871,9 +889,9 @@
   .reading-block {
     background: rgba(18, 13, 32, .78);
     border: 1px solid rgba(201, 162, 39, .16);
-    border-radius: 8px;
-    padding: 16px 16px 18px;
-    margin-bottom: 12px;
+    border-radius: 10px;
+    padding: 18px 20px 20px;
+    margin-bottom: 20px;
     position: relative;
     opacity: 0;
     transform: translateY(10px);
@@ -901,13 +919,14 @@
   }
   .reading-block.rev .rb-name { color: #d0808a; }
   .rb-short {
-    display: block; font-size: 16px;
-    color: #f0e8ff; line-height: 1.55;
-    margin-bottom: 10px; letter-spacing: .5px;
+    display: block; font-size: 17px;
+    color: #f5eeff; line-height: 1.5;
+    font-weight: 500;
+    margin-bottom: 12px; letter-spacing: .5px;
   }
   .rb-body {
-    display: block; font-size: 13px;
-    color: #9a8fba; line-height: 1.85;
+    display: block; font-size: 13.5px;
+    color: #a99cc8; line-height: 1.95;
     letter-spacing: .3px;
   }
 
@@ -942,12 +961,12 @@
   /* 组合解读的段落 */
   .reading-para {
     font-size: 13.5px;
-    color: #a89cc4;
-    line-height: 1.95;
-    letter-spacing: .3px;
-    margin-bottom: 14px;
-    padding-left: 12px;
-    border-left: 2px solid rgba(201, 162, 39, .22);
+    color: #b0a4cc;
+    line-height: 2.15;
+    letter-spacing: .35px;
+    margin-bottom: 22px;
+    padding-left: 14px;
+    border-left: 2px solid rgba(201, 162, 39, .26);
   }
   .reading-para:last-child { margin-bottom: 0; }
   .reading-para.landing {
@@ -978,12 +997,12 @@
     list-style: none;
   }
   .advice-list li {
-    font-size: 13px;
+    font-size: 13.5px;
     color: #b6a9d0;
-    line-height: 1.9;
+    line-height: 1.95;
     letter-spacing: .3px;
-    padding-left: 16px;
-    margin-bottom: 10px;
+    padding-left: 20px;
+    margin-bottom: 14px;
     position: relative;
   }
   .advice-list li:last-child { margin-bottom: 0; }
@@ -991,11 +1010,11 @@
     content: "";
     position: absolute;
     left: 0;
-    top: 11px;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background: rgba(201, 162, 39, .65);
+    top: 13px;
+    width: 9px;
+    height: 1px;
+    border-radius: 0;
+    background: rgba(201, 162, 39, .6);
   }
 
   /* 综合解读卡 */
