@@ -924,43 +924,6 @@
     margin-top: 26px; width: 100%;
   }
 
-  /* 自己说数字 */
-  .number-box { margin-top: 14px; width: 100%; }
-  .number-toggle {
-    display: block; margin: 0 auto;
-    width: auto; max-width: 300px; padding: 7px 20px;
-    border-radius: 999px; cursor: pointer;
-    font-family: inherit; font-size: 12px; letter-spacing: 1px;
-    color: #b8abd6; background: rgba(28, 20, 48, .55);
-    border: 1px solid rgba(201, 162, 39, .22);
-    transition: all .2s ease;
-  }
-  .number-toggle:hover { color: #e6cc72; border-color: rgba(201, 162, 39, .46); background: rgba(36, 26, 60, .7); }
-  .number-toggle.on { color: #e6cc72; border-color: rgba(201, 162, 39, .6); background: rgba(40, 30, 66, .82); }
-  .nt-icon { color: #c9a227; margin-right: 4px; }
-  .nt-tip { color: #7d719e; font-size: 11px; letter-spacing: .5px; }
-
-  .number-panel {
-    max-height: 0; overflow: hidden; opacity: 0;
-    transition: max-height .3s ease, opacity .24s ease, margin-top .3s ease;
-    margin-top: 0;
-  }
-  .number-panel.on { max-height: 180px; opacity: 1; margin-top: 10px; }
-
-  .number-hint { font-size: 11px; color: #7d719e; letter-spacing: .6px; margin-bottom: 9px; text-align: center; }
-  .number-inputs { display: flex; gap: 10px; }
-  .num-in {
-    flex: 1; min-width: 0; box-sizing: border-box;
-    padding: 10px 6px; text-align: center;
-    font-family: inherit; font-size: 15px; letter-spacing: 2px;
-    color: #f0e8ff; background: rgba(20, 14, 34, .8);
-    border: 1px solid rgba(201, 162, 39, .25); border-radius: 9px;
-    outline: none; transition: all .18s ease;
-  }
-  .num-in::placeholder { color: #6b5f88; font-size: 12px; letter-spacing: 1px; }
-  .num-in:focus { border-color: rgba(230, 204, 114, .7); box-shadow: 0 0 0 2px rgba(201, 162, 39, .14); }
-  .num-in.bad { border-color: rgba(224, 96, 96, .8); box-shadow: 0 0 0 2px rgba(224, 96, 96, .14); }
-  .number-err { font-size: 11px; color: #e08080; letter-spacing: .4px; margin-top: 8px; text-align: center; min-height: 15px; }
   .question-input {
     width: 100%; height: 40px;
     background: rgba(20, 15, 35, .7);
@@ -1416,20 +1379,7 @@
     </button>
   </div>
 
-  <div class="number-box" id="numberBox">
-    <button class="number-toggle" id="numberToggle" type="button">
-      <span class="nt-icon">✦</span> 自己填写三个数字 <span class="nt-icon">✦</span>
-    </button>
-    <div class="number-panel" id="numberPanel">
-      <div class="number-hint">每个数字对应一张牌（1 – 26），三张不能重复；不填就直接点「开始占卜」随机抽</div>
-      <div class="number-inputs">
-        <input class="num-in" id="num0" type="text" inputmode="numeric" maxlength="2" placeholder="过去">
-        <input class="num-in" id="num1" type="text" inputmode="numeric" maxlength="2" placeholder="现在">
-        <input class="num-in" id="num2" type="text" inputmode="numeric" maxlength="2" placeholder="未来">
-      </div>
-      <div class="number-err" id="numberErr"></div>
-    </div>
-  </div>
+
 
   <div class="question-box" id="questionBox">
     <input class="question-input" id="questionInput" placeholder="想问的事（可以不填）" maxlength="20">
@@ -1718,20 +1668,6 @@
   }
 
   function pickUnique(n) {
-    // 数字模式：用户自己说了数字，就按数字取牌
-    if (numberMode && numberPicks && numberPicks.length === 3) {
-      var out2 = [];
-      for (var k = 0; k < 3; k++) {
-        var want = numberPicks[k];
-        var hit = null;
-        for (var m = 0; m < CARDS.length; m++) {
-          if (m + 1 === want) { hit = CARDS[m]; break; }
-        }
-        if (hit) out2.push({ card: hit, reversed: Math.random() < 0.35 });
-      }
-      if (out2.length === 3) return out2;
-    }
-
     var pool = CARDS.slice();
     var out = [];
     for (var i = 0; i < n && pool.length; i++) {
@@ -1909,128 +1845,9 @@
     }
   }
 
-  // ===== 自己说数字 =====
-  var numberMode = false;
-  var numberPicks = null;
-  var elNumToggle = document.getElementById('numberToggle');
-  var elNumPanel = document.getElementById('numberPanel');
-  var elNumErr = document.getElementById('numberErr');
-  var elNums = [
-    document.getElementById('num0'),
-    document.getElementById('num1'),
-    document.getElementById('num2')
-  ];
-
-  function readNumbers() {
-    var vals = [];
-    for (var i = 0; i < 3; i++) {
-      var raw = (elNums[i].value || '').trim();
-      var n = parseInt(raw, 10);
-      vals.push(n);
-      elNums[i].classList.remove('bad');
-    }
-    return vals;
-  }
-
-  function validateNumbers() {
-    var vals = readNumbers();
-    var seen = {};
-    for (var i = 0; i < 3; i++) {
-      var n = vals[i];
-      if (!n || isNaN(n)) {
-        elNumErr.textContent = '三个数字都要填';
-        return null;
-      }
-      if (n < 1 || n > CARDS.length) {
-        elNums[i].classList.add('bad');
-        elNumErr.textContent = '只有 ' + CARDS.length + ' 张，数字要在 1 到 ' + CARDS.length + ' 之间';
-        return null;
-      }
-      if (seen[n]) {
-        elNums[i].classList.add('bad');
-        elNumErr.textContent = '三个数字不能一样';
-        return null;
-      }
-      seen[n] = true;
-    }
-    elNumErr.textContent = '';
-    return vals;
-  }
-
-  if (elNumToggle) {
-    elNumToggle.addEventListener('click', function () {
-      numberMode = !numberMode;
-      elNumToggle.classList.toggle('on', numberMode);
-      elNumPanel.classList.toggle('on', numberMode);
-      if (numberMode) {
-        elNumErr.textContent = '';
-        setTimeout(function () { if (elNums[0]) elNums[0].focus(); }, 320);
-      }
-    });
-
-    for (var ni = 0; ni < 3; ni++) {
-      (function (idx) {
-        var el = elNums[idx];
-        if (!el) return;
-        el.addEventListener('input', function () {
-          el.value = el.value.replace(/[^0-9]/g, '');
-          el.classList.remove('bad');
-          elNumErr.textContent = '';
-        });
-        el.addEventListener('keydown', function (e) {
-          if (e.key === 'Enter') {
-            if (idx < 2) elNums[idx + 1].focus();
-            else elBtn.click();
-          }
-        });
-      })(ni);
-    }
-  }
-
-  // ===== 怎么看 =====
-  (function () {
-    var elBtnHelp = document.getElementById('helpToggle');
-    var elMask = document.getElementById('helpMask');
-    var elClose = document.getElementById('helpClose');
-    if (!elBtnHelp || !elMask) return;
-
-    function openHelp() {
-      elMask.classList.add('on');
-      document.body.style.overflow = 'hidden';
-    }
-    function closeHelp() {
-      elMask.classList.remove('on');
-      document.body.style.overflow = '';
-    }
-
-    elBtnHelp.addEventListener('click', openHelp);
-    if (elClose) elClose.addEventListener('click', closeHelp);
-    elMask.addEventListener('click', function (e) {
-      if (e.target === elMask) closeHelp();
-    });
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && elMask.classList.contains('on')) closeHelp();
-    });
-  })();
-
   function draw() {
     if (state.stage === 'drawing') return;
     if (!CARDS.length) { alert('牌库没加载成功'); return; }
-
-    // 数字模式开着就必须先填对三个数字
-    if (numberMode) {
-      var ok = validateNumbers();
-      if (!ok) {
-        if (elNumPanel && !elNumPanel.classList.contains('on')) {
-          elNumPanel.classList.add('on');
-          elNumToggle.classList.add('on');
-        }
-        return;
-      }
-      numberPicks = ok;
-    } else {
-      numberPicks = null;
-    }
 
     playDrawFeedback();
     if (window.SFX) window.SFX.shuffling();
