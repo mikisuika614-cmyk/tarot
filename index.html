@@ -134,6 +134,55 @@
     transform-style: preserve-3d;
     transition: transform 900ms cubic-bezier(.34, .12, .22, 1);
   }
+  /* 背面菱形：慢慢一明一暗，像在呼吸 */
+  @keyframes emblemBreath {
+    0%, 100% {
+      border-color: rgba(201, 162, 39, .34);
+      box-shadow: 0 0 0 rgba(201, 162, 39, 0), inset 0 0 0 rgba(201, 162, 39, 0);
+      transform: rotate(45deg) scale(1);
+    }
+    50% {
+      border-color: rgba(230, 204, 114, .78);
+      box-shadow: 0 0 14px rgba(201, 162, 39, .30), inset 0 0 10px rgba(201, 162, 39, .16);
+      transform: rotate(45deg) scale(1.05);
+    }
+  }
+
+  /* 翻牌：牌底下先浮一圈光，然后牌才转 */
+  .card-frame.flipping::before {
+    content: "";
+    position: absolute;
+    inset: -14px;
+    border-radius: 12px;
+    pointer-events: none;
+    z-index: -1;
+    background: radial-gradient(ellipse at 50% 58%, rgba(255, 236, 160, .92), rgba(230, 204, 114, .46) 38%, rgba(201, 162, 39, .14) 62%, transparent 78%);
+    filter: blur(1px);
+    animation: flipHalo 1050ms ease-out forwards;
+  }
+  @keyframes flipHalo {
+    0%   { opacity: 0; transform: scale(.68); }
+    22%  { opacity: 1; transform: scale(1.04); }
+    62%  { opacity: .72; transform: scale(1.16); }
+    100% { opacity: 0; transform: scale(1.32); }
+  }
+
+  /* 翻正的一瞬间，从牌心散一圈光晕 */
+  .card-frame.flipping .card-face.front::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 6px;
+    pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 252, 236, .95), rgba(255, 240, 180, .55) 28%, rgba(230, 204, 114, .22) 52%, transparent 70%);
+    animation: flipBloom 760ms ease-out forwards;
+  }
+  @keyframes flipBloom {
+    0%   { opacity: 0; transform: scale(.55); }
+    22%  { opacity: .95; }
+    100% { opacity: 0; transform: scale(1.5); }
+  }
+
   .card-flip.flipped {
     transform: rotateY(180deg);
   }
@@ -381,6 +430,7 @@
   .deal-card .sh-inner .back-emblem {
     width: 46px; height: 46px;
     border: 1px solid rgba(201, 162, 39, .45);
+    animation: emblemBreath 3.4s ease-in-out infinite;
     transform: rotate(45deg);
     display: flex; align-items: center; justify-content: center;
     position: relative;
