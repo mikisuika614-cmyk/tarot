@@ -936,6 +936,7 @@
   .number-toggle:hover { color: #e6cc72; border-color: rgba(201, 162, 39, .46); background: rgba(36, 26, 60, .7); }
   .number-toggle.on { color: #e6cc72; border-color: rgba(201, 162, 39, .6); background: rgba(40, 30, 66, .82); }
   .nt-icon { color: #c9a227; margin-right: 4px; }
+  .nt-tip { color: #7d719e; font-size: 11px; letter-spacing: .5px; }
 
   .number-panel {
     max-height: 0; overflow: hidden; opacity: 0;
@@ -1329,10 +1330,10 @@
 
   <div class="number-box" id="numberBox">
     <button class="number-toggle" id="numberToggle" type="button">
-      <span class="nt-icon">✦</span> 自己说三个数字
+      <span class="nt-icon">✦</span> 自己填写三个数字 <span class="nt-tip">（点我展开）</span> <span class="nt-icon">✦</span>
     </button>
     <div class="number-panel" id="numberPanel">
-      <div class="number-hint">每个数字对应一张牌（1 – 26），三张不能重</div>
+      <div class="number-hint">每个数字对应一张牌（1 – 26），三张不能重复；不填就直接点「开始占卜」随机抽</div>
       <div class="number-inputs">
         <input class="num-in" id="num0" type="text" inputmode="numeric" maxlength="2" placeholder="过去">
         <input class="num-in" id="num1" type="text" inputmode="numeric" maxlength="2" placeholder="现在">
