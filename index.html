@@ -99,11 +99,12 @@
     position: relative;
   }
   .divider::after {
-    content: "✦";
+    content: "";
     position: absolute; left: 50%; top: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 8px; color: #c9a227; background: #07050e;
-    padding: 0 8px;
+    transform: translate(-50%, -50%) rotate(45deg);
+    width: 5px; height: 5px;
+    background: linear-gradient(135deg, #e6cc72, #a8862c);
+    box-shadow: 0 0 6px rgba(201, 162, 39, .55);
   }
 
   /* ===== 三张牌 ===== */
