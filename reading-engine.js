@@ -224,7 +224,7 @@
       push(REV_ADVICE[nowNature]);
     } else {
       push((TV[nowId] && TV[nowId].advice) ||
-           (VOICE[nowId] && VOICE[nowId].advice) ||
+           pickAdvice(nowId) ||
            NATURE_ADVICE[nowNature]);
     }
 
@@ -235,7 +235,7 @@
       push(REV_ADVICE[futNature]);
     } else {
       push((TV[futId] && TV[futId].advice) ||
-           (VOICE[futId] && VOICE[futId].advice) ||
+           pickAdvice(futId) ||
            NATURE_ADVICE[futNature]);
     }
 
@@ -244,7 +244,7 @@
       var pastId = drawn[0].card.id;
       var pastNature = (TRAITS[pastId] || {}).nature || '';
       push((TV[pastId] && TV[pastId].advice) ||
-           (VOICE[pastId] && VOICE[pastId].advice) ||
+           pickAdvice(pastId) ||
            NATURE_ADVICE[pastNature]);
     }
 
@@ -268,7 +268,19 @@
   }
 
   // ---- 主函数 ----
-  function buildCombinedReading(drawn, question, topicName, topicSub) {
+  // 从 moreAdvice 里随机挑一条，没有再退回原 advice
+  function pickAdvice(id) {
+    var ALL = window.TAROT_VOICE || {};
+    var v = ALL[id];
+    if (!v) return null;
+    if (v.moreAdvice && v.moreAdvice.length) {
+      var pool = [v.advice].concat(v.moreAdvice);
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+    return v.advice || null;
+  }
+
+function buildCombinedReading(drawn, question, topicName, topicSub) {
     if (!drawn || drawn.length < 3) return null;
     var valid = drawn.filter(function (d) { return d && d.card; });
     if (valid.length < 3) return null;
@@ -290,11 +302,42 @@
     if (nowVoice && nowVoice.inNow) {
       // 有专属说法就用专属的，再补一句能量基调
       var toneTail;
-      if (totalEnergy >= 3) toneTail = '整体上局面是活的。';
-      else if (totalEnergy >= 1) toneTail = '整体在往前，但不算轻松。';
-      else if (totalEnergy === 0) toneTail = '一进一退，现在还没定。';
-      else if (totalEnergy >= -2) toneTail = '这时候不适合硬推。';
-      else toneTail = '先稳住，别急着扭转。';
+      var pick = function (arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+      if (totalEnergy >= 3) toneTail = pick([
+        '整体上局面是活的。',
+        '这个盘子是在转的，不是死的。',
+        '整体气口朝上，推得动。',
+        '局面有活性，这是好事。',
+        '三张加起来是往上走的势头。'
+      ]);
+      else if (totalEnergy >= 1) toneTail = pick([
+        '整体在往前，但不算轻松。',
+        '方向是对的，代价也不小。',
+        '往前挪得动，只是慢。',
+        '能动，但不是那种一口气能成的动。',
+        '整体偏正，但要花力气。'
+      ]);
+      else if (totalEnergy === 0) toneTail = pick([
+        '一进一退，现在还没定。',
+        '力气互相抵掉了，僵在这儿。',
+        '差不多是平的，看你怎么使这个劲。',
+        '没有明确的倾斜，这时候选择比努力重要。',
+        '正负相抵，局面处在中间态。'
+      ]);
+      else if (totalEnergy >= -2) toneTail = pick([
+        '这时候不适合硬推。',
+        '顶上去的代价大于收益。',
+        '现在推是白费力气，先别动。',
+        '这个位置硬来不划算。',
+        '阻力比你想的大，缓一缓。'
+      ]);
+      else toneTail = pick([
+        '先稳住，别急着扭转。',
+        '现在是守住的时候，不是翻盘的时候。',
+        '局面在往下，先别加码。',
+        '这时候少犯错比多做事重要。',
+        '落的时候别抓，抓了更沉。'
+      ]);
       // 再叠一句"现在这事卡在哪一层"，让同一张牌在不同组合里不同
       var nowRealm = (TRAITS[nowItem.card.id] || {}).realm || '';
       var otherRealms = (TRAITS[drawn[0].card.id] || {}).realm + '/' + (TRAITS[drawn[2].card.id] || {}).realm;
@@ -377,24 +420,62 @@
       var gp = g(n0), gf = g(n2);
       var key = gp + '-' + gf;
       var POOL = {
-        'down-up': ['先破后立。倒下的那部分清完，新的才站得住。',
-                    '这组是"熬过去"的形状，现在难，但难在往好的方向走。'],
-        'up-up': ['一路往上，没有明显的坎。这时候最容易的问题是走太快没看路。',
-                  '三张同向推进，说明这件事本身顺，卡你的是要不要下决心。'],
-        'up-down': ['开头顺，后面会撞墙。别把前期的顺利当成全程都这样。',
-                    '这组形状是"起高走低"。趁现在还在高处，把该锁的先锁住。'],
-        'down-down': ['一路往下，没有反转。这时候争的不是赢，是少输。',
-                      '这个形状说明事情还在往下走，先别急着止跌。'],
-        'still-up': ['一直悬着，往下才动起来。等的那段时间不是白等。',
-                     '前面拖了很久，现在终于有推力了。'],
-        'up-still': ['先推了一阵，然后卡住。你要找的是那个卡点在哪。',
-                     '这个形状是"开了头没接上"。问题不在开头，在中间。'],
-        'down-still': ['先落了，然后停住。停住说明还没有到最底。',
-                       '已经消解过一轮，现在是缓冲期。'],
-        'still-down': ['一直没定，往下才开始动。等着看的东西，已经给出答案了。',
-                       '悬着的东西要落下来了，只是不是你选的方式。'],
+        'down-up': ['先压后起，这段路是弯的，但拐过去了就是拐过去了。',
+                    '最坏的时候已经在你身后了，往上看，路才开始。',
+                    '前面那段落差不是白摔的，它把你放到了一个更容易起跳的位置。',
+                    '两头是反的，说明现在正在换挡，别用旧的速度去要求新的阶段。',
+                    '低过之后才看得见高在哪，这段回调不算白走。',
+                    '先沉再浮，浮起来的时候你会比原来轻一点。'],
+        'up-up': ['一路往上，没有明显的坎。这时候反而容易滑过去，别把顺当成了稳。',
+                  '连着两张都推你往前，说明势头在你这。要做的只有一件事：别停。',
+                  '顺是好事，但顺的时候最容易把判断交给惯性。留一只眼睛看着脚下。',
+                  '连续上坡，路是通的。需要注意的是速度，不是方向。',
+                  '这种牌面说明外部条件在帮你。趁这个时候把想做的推出去。',
+                  '三张里两张都在往上抬，这时候的阻力多半来自你自己，不是外头。'],
+        'up-down': ['开头顺，别以为会一直顺。前半的顺，可能只是后半的反差还没露出来。',
+                    '先扬后抑，不是在惩罚你，是提醒你别把前半的好当成保证。',
+                    '这种形状像"先甜后苦"，甜的时候记住味道，苦的时候别忘了它有头。',
+                    '前面推得动，后面会卡。所以在还推得动的时候，把该办的办了。',
+                    '先冲上去再滑下来，说明现在的位置比终点高。别在那儿当成家。',
+                    '前面顺得像假装，后面才是真章。别用前半的成绩替后半担保。'],
+        'down-down': ['一路往下，没有反转。这时候比的不是赢，是少输。',
+                     '两张都在往下压，这种时候硬顶最贵。先站稳，再谈走。',
+                     '往下不是终点，是低点。低点唯一的好处是，接下来只能往上。',
+                     '连着两张都在退，说明这事现在不顺。承认不顺，比硬装没事省力。',
+                     '这种牌面下的判断要保守一点。这时候做对，比做快值钱。',
+                     '掉下去不等于完了，但你得先落地，才能再抬头。'],
+        'still-up': ['一直不动，然后才开始动。那种"等了好久终于来了"的感觉，不是错觉。',
+                     '前段是停的，后段才起。所以现在要是还没动静，不一定是坏消息。',
+                     '压着的那口气还没松，但方向已经换了。再等等。',
+                     '停在原地不是失败，是在攒。攒够了自然会动。',
+                     '前面那些没反应的日子，在给后面这段腾位置。',
+                     '慢启动不是不动，只是动力还没传到你看得见的地方。'],
+        'up-still': ['前面走得顺，后面停住了。别急着找原因，有时候就是该歇一下。',
+                     '推得动，但推到头了。接下来该收，不该再加码。',
+                     '这种形状说明"能做的已经做了"，剩下的不归你管。',
+                     '前半在动，后半在等。等的时候别慌，慌容易把前面的成绩赔进去。',
+                     '走到这儿停住，不是卡了，是到了。',
+                     '前面那段的力气已经用完了，接下来靠的不是力气。'],
+        'down-still': ['先落了，然后停住。停住说明还有底，没落到底。',
+                       '压下去之后稳住了，这是好事。稳住比反弹更值钱。',
+                       '这种牌面是"止跌"，不是"回涨"。别把止跌当成好转。',
+                       '沉下去了但没继续沉，说明下面有东西托着。先确认那是什么。',
+                       '停在这个位置，说明再往下有人拦。你不用自己扛。',
+                       '退了一段然后站稳，接下来是恢复期，不是冲刺期。'],
+        'still-down': ['一直没动静，然后才开始往下走。这时候松开比抓住省力。',
+                       '前面太平，太平之后的下坡容易让人措手不及。留意信号。',
+                       '这种形状是"后发劣势"，等你看清的时候已经开始滑了。',
+                       '停着的时候还好，一动就露了。说明问题本来就在，只是被压着。',
+                       '前段没反应，后段往下。别用前段的平静判断现在的局势。',
+                       '刚开始往下，还来得及。这时候做决定，比等到半山腰容易。'],
         'still-still': ['三张都不动。这种局面里，做什么都会觉得没变化。',
-                        '整体是静止的。这时候不需要行动，需要等。']
+                        '一直停着。这时候的答案不是"怎么动"，是"要不要动"。',
+                        '全是静止，说明现在不适合硬推。推也推不动。',
+                        '这种牌面下的等待不是浪费，是必要的。急反而坏事。',
+                        '没有变化也是一种信息。它在说：现在不是好时候。',
+                        '卡在原地，但卡住不等于走错。有时候就是这段路本来就慢。'],
+        'up-down-up': ['起落起，来回摆。这种形状说明还没定型，别急着下结论。'],
+        'down-up-down': ['落起落，像在试探。这种形状说明地基还没稳。']
       };
       var pool = POOL[key] || ['三张牌连起来是一条线，不太有反转，说明局面还算稳定。'];
       tension = pool[drawn[0].card.id % pool.length];
@@ -417,7 +498,7 @@
 
     // 4) 落到问题：主句按"未来"牌的性质挑，避免同一主题总是同一句
     var landPool2 = TOPIC_LANDING[topicName] || TOPIC_LANDING['综合'];
-    var landBase = landPool2[drawn[2].card.id % landPool2.length];
+    var landBase = landPool2[Math.floor(Math.random() * landPool2.length)];
     var futTrait = TRAITS[drawn[2].card.id] || {};
     var landLead = '';
     switch (futTrait.nature) {
