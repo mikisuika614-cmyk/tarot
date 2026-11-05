@@ -1293,6 +1293,91 @@
     font-size: 12px; color: #7a6ea0;
     line-height: 1.8;
   }
+
+  /* 怎么看 */
+  .help-toggle {
+    position: absolute;
+    right: 34px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,162,39,.28);
+    background: rgba(28,22,44,.6);
+    color: #8a7db0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: 13px;
+    line-height: 1;
+    transition: all .18s ease;
+  }
+  .help-toggle:hover { color: #e6cc72; border-color: rgba(201,162,39,.55); }
+
+  .help-mask {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(4, 2, 10, .82);
+    backdrop-filter: blur(3px);
+    display: none; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .help-mask.on { display: flex; }
+  .help-card {
+    position: relative;
+    width: 100%; max-width: 460px;
+    max-height: 84vh; overflow-y: auto;
+    padding: 28px 26px 26px;
+    border-radius: 14px;
+    background: linear-gradient(170deg, rgba(38,28,62,.98) 0%, rgba(18,13,32,.99) 100%);
+    border: 1px solid rgba(201,162,39,.34);
+    box-shadow: 0 24px 60px rgba(0,0,0,.7);
+    animation: helpIn .26s ease;
+  }
+  @keyframes helpIn {
+    from { opacity: 0; transform: translateY(14px) scale(.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  .help-close {
+    position: absolute; top: 12px; right: 12px;
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1px solid rgba(201,162,39,.25);
+    background: transparent; color: #8a7db0;
+    cursor: pointer; font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .help-close:hover { color: #e6cc72; border-color: rgba(201,162,39,.55); }
+  .help-title {
+    font-size: 17px; letter-spacing: 4px; color: #e6cc72;
+    text-align: center; margin-bottom: 6px; font-weight: 300;
+  }
+  .help-sub {
+    font-size: 11px; color: #6b5f88; letter-spacing: 1px;
+    text-align: center; margin-bottom: 22px;
+  }
+  .help-sec { margin-bottom: 20px; }
+  .help-sec h4 {
+    margin: 0 0 8px; font-size: 12px; font-weight: 600;
+    color: #c9a227; letter-spacing: 2px;
+  }
+  .help-sec p {
+    margin: 0 0 7px; font-size: 12.5px; line-height: 1.9;
+    color: #a89cc4; letter-spacing: .3px;
+  }
+  .help-sec p:last-child { margin-bottom: 0; }
+  .help-sec b { color: #d8cdf0; font-weight: 600; }
+  .help-list { margin: 0; padding: 0; list-style: none; }
+  .help-list li {
+    position: relative; padding-left: 16px; margin-bottom: 7px;
+    font-size: 12.5px; line-height: 1.85; color: #a89cc4; letter-spacing: .3px;
+  }
+  .help-list li::before {
+    content: ""; position: absolute; left: 0; top: 11px;
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(201,162,39,.6);
+  }
+  .help-list li:last-child { margin-bottom: 0; }
 </style>
 </head>
 <body>
@@ -1302,6 +1387,7 @@
   <div class="header">
     <div class="title-row">
       <span class="title">今日运势</span>
+      <button class="help-toggle" id="helpToggle" title="怎么看">?</button>
       <button class="sfx-toggle" id="sfxToggle" title="开关音效">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8">
           <path d="M11 5 6 9H3v6h3l5 4V5z"/>
@@ -1359,6 +1445,49 @@
       <button class="history-clear" id="historyClear">清空</button>
     </div>
     <div class="history-list" id="historyList"></div>
+  </div>
+</div>
+
+<!-- 怎么看 -->
+<div class="help-mask" id="helpMask">
+  <div class="help-card">
+    <button class="help-close" id="helpClose">×</button>
+    <div class="help-title">怎么看</div>
+    <div class="help-sub">三牌阵 · 二十六张</div>
+
+    <div class="help-sec">
+      <h4>三个位置</h4>
+      <p><b>过去</b>　这件事的根，从哪里开始长出来的。</p>
+      <p><b>现在</b>　眼下所在的这一层，最实的那一块。</p>
+      <p><b>未来</b>　往下走会遇到的形状，不是预言，是趋势。</p>
+    </div>
+
+    <div class="help-sec">
+      <h4>怎么玩</h4>
+      <ul class="help-list">
+        <li>点「开始占卜」，牌自己洗、自己发。</li>
+        <li>三张牌依次点开，翻开才算数。</li>
+        <li>想自己选，点「自己填写三个数字」——每个数字对应一张牌（1 到 26），三张不能重复。不填就是随机抽。</li>
+        <li>想问的事可以填也可以不填。填了，解读会往那个方向说。</li>
+        <li>点开任意一张牌，能看它的另一面。</li>
+      </ul>
+    </div>
+
+    <div class="help-sec">
+      <h4>正位和逆位</h4>
+      <p><b>正位</b>　这张牌的能量是顺的，照它本来的意思读。</p>
+      <p><b>逆位</b>　能量被卡住、过头了，或者还没长出来。逆位不是「坏」，是「卡在这儿」。</p>
+    </div>
+
+    <div class="help-sec">
+      <h4>牌从哪来</h4>
+      <p>二十二张大阿卡纳，加四张首牌（权杖、圣杯、宝剑、星币）。卡面是照《穿透幻影的太阳》那种风格重画的，自己用，不商用。</p>
+    </div>
+
+    <div class="help-sec">
+      <h4>最后一句</h4>
+      <p>塔罗不给答案，只把你已经知道但没承认的事，摆到明面上来。看着不顺眼的，往往就是最该看的那句。</p>
+    </div>
   </div>
 </div>
 
@@ -1856,6 +1985,32 @@
       })(ni);
     }
   }
+
+  // ===== 怎么看 =====
+  (function () {
+    var elBtnHelp = document.getElementById('helpToggle');
+    var elMask = document.getElementById('helpMask');
+    var elClose = document.getElementById('helpClose');
+    if (!elBtnHelp || !elMask) return;
+
+    function openHelp() {
+      elMask.classList.add('on');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeHelp() {
+      elMask.classList.remove('on');
+      document.body.style.overflow = '';
+    }
+
+    elBtnHelp.addEventListener('click', openHelp);
+    if (elClose) elClose.addEventListener('click', closeHelp);
+    elMask.addEventListener('click', function (e) {
+      if (e.target === elMask) closeHelp();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && elMask.classList.contains('on')) closeHelp();
+    });
+  })();
 
   function draw() {
     if (state.stage === 'drawing') return;
