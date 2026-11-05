@@ -1412,16 +1412,6 @@
       <p><b>未来</b>　往下走会遇到的形状，不是预言，是趋势。</p>
     </div>
 
-    <div class="help-sec">
-      <h4>怎么玩</h4>
-      <ul class="help-list">
-        <li>点「开始占卜」，牌自己洗、自己发。</li>
-        <li>三张牌依次点开，翻开才算数。</li>
-        <li>想自己选，点「自己填写三个数字」——每个数字对应一张牌（1 到 26），三张不能重复。不填就是随机抽。</li>
-        <li>想问的事可以填也可以不填。填了，解读会往那个方向说。</li>
-        <li>点开任意一张牌，能看它的另一面。</li>
-      </ul>
-    </div>
 
     <div class="help-sec">
       <h4>正位和逆位</h4>
@@ -1844,6 +1834,32 @@
       setTimeout(function () { particles.burst(28); }, 90);
     }
   }
+
+  // ===== 怎么看 =====
+  (function () {
+    var elBtnHelp = document.getElementById('helpToggle');
+    var elMask = document.getElementById('helpMask');
+    var elClose = document.getElementById('helpClose');
+    if (!elBtnHelp || !elMask) return;
+
+    function openHelp() {
+      elMask.classList.add('on');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeHelp() {
+      elMask.classList.remove('on');
+      document.body.style.overflow = '';
+    }
+
+    elBtnHelp.addEventListener('click', openHelp);
+    if (elClose) elClose.addEventListener('click', closeHelp);
+    elMask.addEventListener('click', function (e) {
+      if (e.target === elMask) closeHelp();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && elMask.classList.contains('on')) closeHelp();
+    });
+  })();
 
   function draw() {
     if (state.stage === 'drawing') return;
