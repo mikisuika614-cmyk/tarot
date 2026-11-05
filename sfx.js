@@ -86,10 +86,38 @@
     src.start();
   }
 
-  // 翻牌：一声清脆的
+  // 翻牌：像翻开一张厚纸，带一点回响
   function flip() {
-    tone(880, 0, 0.34, 0.15, 'triangle');
-    tone(1320, 0.02, 0.24, 0.08, 'sine');
+    // 摩擦感：一小段带通噪声，只在最前面
+    var c = ac();
+    if (c) {
+      var dur = 0.16;
+      var bufSize = Math.floor(c.sampleRate * dur);
+      var buf = c.createBuffer(1, bufSize, c.sampleRate);
+      var data = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) {
+        var p = i / bufSize;
+        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - p, 2.2) * 0.10;
+      }
+      var src = c.createBufferSource();
+      src.buffer = buf;
+      var bp = c.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 2200;
+      bp.Q.value = 1.1;
+      var g = c.createGain();
+      g.gain.value = 0.55;
+      src.connect(bp);
+      bp.connect(g);
+      g.connect(c.destination);
+      src.start();
+    }
+
+    // 主音响：比原来低一点，长很多
+    tone(660, 0.015, 1.05, 0.115, 'triangle');
+    tone(990, 0.03, 0.72, 0.055, 'sine');
+    tone(1320, 0.045, 0.42, 0.035, 'sine');
+    tone(330, 0, 1.15, 0.05, 'sine');
   }
 
   // 翻开三张完成：一段上行和弦
